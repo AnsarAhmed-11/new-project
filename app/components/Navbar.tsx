@@ -15,7 +15,7 @@ export default function Navbar() {
   const showAuthForm = (mode: "signin" | "signup") => {
     setOpen(false);
     setAuthMode(mode);
-    setAuthStatus("idle");
+    setAuthStatus("idle");  
     setAuthMessage("");
   };
 

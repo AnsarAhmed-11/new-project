@@ -39,11 +39,11 @@ export const products = [
     description:
       "Accurate spring-type machinist divider.",
   },
-  {
-    id: 6,
-    name: "Machinist Divider",
-    image: "https://images.pexels.com/photos/8327959/pexels-photo-8327959.jpeg  ",
-    description:
-      "Accurate spring-type machinist divider.",
-  }
+  // {
+  //   id: 6,
+  //   name: "Machinist Divider",
+  //   image: "https://images.pexels.com/photos/8327959/pexels-photo-8327959.jpeg  ",
+  //   description:
+  //     "Accurate spring-type machinist divider.",
+  // }
 ];

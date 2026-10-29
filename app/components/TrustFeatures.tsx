@@ -1,8 +1,8 @@
-import { Diamond, Settings, ShieldCheck } from "lucide-react";
+import { Gem, Settings, ShieldCheck } from "lucide-react";
 import styles from "@/app/styles/components/TrustFeatures.module.css";
 
 const features = [
-  { icon: Diamond, title: "PREMIUM", subtitle: "QUALITY" },
+  { icon: Gem, title: "PREMIUM", subtitle: "QUALITY" },
   { icon: Settings, title: "PRECISION", subtitle: "ENGINEERING" },
   { icon: ShieldCheck, title: "BUILT", subtitle: "TO LAST" },
 ];

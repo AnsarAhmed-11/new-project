@@ -41,7 +41,7 @@
 
 .eyebrow {
     margin: 0 0 20px;
-    color: var(--orange);
+    color: white;
     font-size: .875rem;
     font-weight: 700;
     letter-spacing: .3em;
@@ -49,11 +49,13 @@
 }
 
 .content h2 {
+    color: #f5f5f5;
     max-width: 768px;
     margin: 0;
-    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    font-size: clamp(3rem, 8vw, 5rem);
     line-height: .95;
-    letter-spacing: -.04em;
+    letter-spacing: -.07em;
 }
 
 .content h2 span {
@@ -61,13 +63,20 @@
 }
 
 .description {
-    max-width: 576px;
-    margin: 28px 0 0;
-    color: rgb(255 255 255 / 65%);
-    font-size: 1.125rem;
-    line-height: 1.75;
+  position: relative;
+  max-width: 576px;
+  margin: 28px 0 0;
+  color: rgb(255 255 255 / 65%);
+  font-size: 1.8rem; /* fixed typo */
+  word-spacing: 4px;
+  text-shadow: 0 4px 2px rgba(0, 0, 0, 0.6);
+  line-height: 1.3;
 }
 
+/* Text ke neeche subtle dark shadow */
+.description {
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.4));
+}
 .cta {
     display: inline-flex;
     align-items: center;
@@ -110,7 +119,21 @@
         font-size: 1rem;
     }
 }
-
+.content .btntouch{
+    width: 10rem;
+    background: none;
+    color: white;
+    padding: 15px ;
+    border: 2px solid var(--orange);
+    border-radius: 15px;
+    margin-left: 20px;  
+    letter-spacing: 1px;
+}
+.btntouch:hover{
+    background: var(--orange);
+    color: wheat;
+    transition: all ease .21;
+}
 @media (min-width: 1024px) {
     .hero {
         padding-right: 40px;
