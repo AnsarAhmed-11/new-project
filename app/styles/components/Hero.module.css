@@ -1,0 +1,119 @@
+.hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: 620px;
+    align-items: center;
+    overflow: hidden;
+    padding: 176px 24px 80px;
+    background-color: var(--background);
+    background-image: linear-gradient(90deg, rgb(8 10 11 / 100%) 0%, rgb(8 10 11 / 90%) 38%, rgb(8 10 11 / 30%) 72%, rgb(8 10 11 / 45%) 100%), url("/extractedimage.jpeg");
+    background-position: center;
+    background-size: cover;
+}
+
+.hero::after {
+    position: absolute;
+    z-index: -1;
+    inset: auto 0 0;
+    height: 35%;
+    background: linear-gradient(transparent, var(--background));
+    content: "";
+}
+
+.glow {
+    position: absolute;
+    z-index: -1;
+    top: 96px;
+    right: -128px;
+    width: 384px;
+    height: 384px;
+    border-radius: 50%;
+    background: rgb(255 106 0 / 10%);
+    filter: blur(48px);
+}
+
+.content {
+    width: 100%;
+    max-width: 1450px;
+    margin: 0 auto;
+}
+
+.eyebrow {
+    margin: 0 0 20px;
+    color: var(--orange);
+    font-size: .875rem;
+    font-weight: 700;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+}
+
+.content h2 {
+    max-width: 768px;
+    margin: 0;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: .95;
+    letter-spacing: -.04em;
+}
+
+.content h2 span {
+    color: var(--orange);
+}
+
+.description {
+    max-width: 576px;
+    margin: 28px 0 0;
+    color: rgb(255 255 255 / 65%);
+    font-size: 1.125rem;
+    line-height: 1.75;
+}
+
+.cta {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 36px;
+    border-radius: 12px;
+    background: var(--orange);
+    padding: 14px 24px;
+    color: #000;
+    font-weight: 700;
+    transition: background .2s ease;
+}
+
+.cta:hover,
+.cta:focus-visible {
+    background: #ff812b;
+}
+
+.cta span {
+    margin-left: 12px;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 639px) {
+    .hero {
+        min-height: 570px;
+        background-position: 62% center;
+    }
+
+    .eyebrow {
+        max-width: 280px;
+        font-size: .75rem;
+        line-height: 1.5;
+    }
+
+    .content h2 {
+        font-size: clamp(2.75rem, 14vw, 4rem);
+    }
+
+    .description {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero {
+        padding-right: 40px;
+        padding-left: 40px;
+    }
+}

@@ -1,0 +1,371 @@
+.header {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 50;
+  width: 100%;
+}
+
+.bar {
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  background: rgb(8 10 11 / 75%);
+  backdrop-filter: blur(16px);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1450px;
+  margin: 0 auto;
+  padding: 16px 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.brandText {
+  margin-left: 8px;
+  line-height: 1;
+}
+
+/* .brandText h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: -.025em;
+} */
+
+.brandText p {
+  margin: 4px 0 0;
+  color: var(--orange);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+
+.desktopNav {
+  display: none;
+  align-items: center;
+  gap: 32px;
+}
+
+.desktopNav a {
+  font-weight: 500;
+  transition: color .2s ease;
+}
+
+.desktopNav a:hover,
+.desktopNav a:focus-visible {
+  color: var(--orange);
+}
+
+.desktopNav .active {
+  position: relative;
+  color: var(--orange);
+}
+
+.active span {
+  position: absolute;
+  right: 0;
+  bottom: -16px;
+  left: 0;
+  height: 2px;
+  background: var(--orange);
+}
+
+.actions {
+  display: none;
+  align-items: center;
+  gap: 20px;
+}
+
+.authButton {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+}
+
+.authButton:hover,
+.authButton:focus-visible {
+  color: var(--orange);
+}
+
+.cta,
+.mobileCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--orange);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: background .2s ease, color .2s ease;
+}
+
+.cta:hover,
+.mobileCta:hover {
+  background: var(--orange);
+  color: #000;
+}
+
+.iconButton,
+.menuButton {
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.iconButton {
+  padding: 8px;
+  transition: color .2s ease;
+}
+
+.iconButton:hover,
+.menuButton:hover {
+  color: var(--orange);
+}
+
+.menuButton {
+  display: block;
+  padding: 8px;
+}
+
+.mobilePanel {
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  background: rgb(8 10 11 / 95%);
+  padding: 20px;
+  box-shadow: 0 24px 40px rgb(0 0 0 / 25%);
+  backdrop-filter: blur(16px);
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobileNav a {
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 500;
+  transition: background .2s ease, color .2s ease;
+}
+
+.mobileNav a:hover {
+  background: rgb(255 255 255 / 5%);
+  color: var(--orange);
+}
+
+.mobileActive {
+  color: var(--orange);
+}
+
+.mobileCta {
+  width: fit-content;
+  margin-top: 12px;
+}
+
+.mobileAuth {
+  display: flex;
+  gap: 20px;
+  padding: 12px;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 75%);
+  padding: 20px;
+}
+
+.authModal {
+  position: relative;
+  width: min(100%, 440px);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 16px;
+  background: #17191b;
+  padding: 32px;
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 70%);
+}
+
+.closeButton:hover {
+  color: var(--orange);
+}
+
+.authEyebrow {
+  margin: 0;
+  color: var(--orange);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.authModal h2 {
+  margin: 10px 0 0;
+  font-size: 1.8rem;
+}
+
+.authDescription {
+  margin: 10px 0 0;
+  color: rgb(255 255 255 / 60%);
+  line-height: 1.5;
+}
+
+.authForm {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.authForm label {
+  display: grid;
+  gap: 8px;
+  color: rgb(255 255 255 / 80%);
+  font-size: .875rem;
+  font-weight: 600;
+}
+
+.authForm input {
+  width: 100%;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 8px;
+  background: #101214;
+  color: var(--foreground);
+  padding: 12px;
+  font: inherit;
+}
+
+.authForm input:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: 1px;
+}
+
+.authSubmit {
+  border: 1px solid var(--orange);
+  border-radius: 8px;
+  background: var(--orange);
+  color: #000;
+  padding: 13px 16px;
+  font: inherit;
+  font-weight: 700;
+}
+
+.authSubmit:hover {
+  background: #ff8533;
+}
+
+.authSubmit:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+.authMessage {
+  margin: 16px 0 0;
+  font-size: .875rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.success {
+  color: #72e6a1;
+}
+
+.error {
+  color: #ff8b8b;
+}
+
+.authSwitch {
+  margin: 20px 0 0;
+  color: rgb(255 255 255 / 60%);
+  font-size: .875rem;
+  text-align: center;
+}
+
+.authSwitch button {
+  border: 0;
+  background: transparent;
+  color: var(--orange);
+  font: inherit;
+  font-weight: 700;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .logo {
+    width: 70px;
+    height: 70px;
+    scale: 2;
+  }
+
+  .brandText h1 {
+    font-size: 1.5rem;
+  }
+
+  .brandText p {
+    font-size: 1.25rem;
+  }
+
+  .mobilePanel {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 20px 40px;
+  }
+
+  .desktopNav,
+  .actions {
+    display: flex;
+  }
+
+  .menuButton,
+  .mobilePanel {
+    display: none;
+  }
+}
+
+@media (min-width: 1280px) {
+  .desktopNav {
+    gap: 40px;
+  }
+
+  .actions {
+    gap: 28px;
+  }
+
+  .cta {
+    padding: 12px 24px;
+  }
+}
