@@ -68,9 +68,9 @@ export default function Navbar() {
           </nav>
 
           <div className={styles.actions}>
-            <button type="button" className={styles.authButton} onClick={() => showAuthForm("signin")}>Sign in</button>
-            <button type="button" className={styles.authButton} onClick={() => showAuthForm("signup")}>Sign up</button>
-            <a href="#contact" className={styles.cta}>Enquire Now<ArrowUpRight size={17} aria-hidden="true" /></a>
+            {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signin")}>Sign in</button> */}
+            {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signup")}>Sign up</button> */}
+            <Link href="/enquire" className={styles.cta}>Enquire Now<ArrowUpRight size={17} aria-hidden="true" /></Link>
             <button type="button" aria-label="Search" className={styles.iconButton}>
               <Search size={26} strokeWidth={1.7} aria-hidden="true" />
             </button>
@@ -90,15 +90,15 @@ export default function Navbar() {
             <a href="#about" onClick={() => setOpen(false)}>About</a>
             <a href="#contact" onClick={() => setOpen(false)}>Contact</a>
             <div className={styles.mobileAuth}>
-              <button type="button" className={styles.authButton} onClick={() => showAuthForm("signin")}>Sign in</button>
-              <button type="button" className={styles.authButton} onClick={() => showAuthForm("signup")}>Sign up</button>
+              {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signin")}>Sign in</button> */}
+              {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signup")}>Sign up</button> */}
             </div>
             <a href="#contact" onClick={() => setOpen(false)} className={styles.mobileCta}>Enquire Now<MoveRight size={17} aria-hidden="true" /></a>
           </nav>
         </div>
       )}
 
-      {authMode && (
+      {/* {authMode && (
         <div className={styles.modalBackdrop} role="presentation" onClick={() => setAuthMode(null)}>
           <section
             className={styles.authModal}
@@ -143,7 +143,7 @@ export default function Navbar() {
             </p>
           </section>
         </div>
-      )}
+      )} */}
     </header>
   );
 }

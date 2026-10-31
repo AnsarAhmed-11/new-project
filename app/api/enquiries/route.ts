@@ -1,0 +1,4 @@
+import { NextResponse } from "next/server";
+import { requireAdmin } from "@/app/lib/auth";
+import { listEnquiries } from "@/app/models/enquiryModel";
+export async function GET(request: Request) { try { await requireAdmin(); const url = new URL(request.url); const result = await listEnquiries({ search: url.searchParams.get("search") || undefined, status: url.searchParams.get("status") || undefined, date: url.searchParams.get("date") || undefined, sort: url.searchParams.get("sort") || undefined, page: Number(url.searchParams.get("page") || 1), limit: Number(url.searchParams.get("limit") || 10) }); return NextResponse.json(result); } catch (error) { return NextResponse.json({ message: error instanceof Error && error.message === "UNAUTHORIZED" ? "Unauthorized" : "Unable to load enquiries." }, { status: error instanceof Error && error.message === "UNAUTHORIZED" ? 401 : 500 }); } }

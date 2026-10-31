@@ -1,4 +1,5 @@
 import styles from "@/app/styles/components/Hero.module.css";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -9,7 +10,7 @@ export default function Hero() {
         <h2>PRECISION <br /> <span>IN EVERY</span> DETAIL <span>.</span></h2>
         <p className={styles.description}>Built strong. Built to last.</p>
         <a href="#products" className={styles.cta}>Explore products <span aria-hidden="true">→</span></a>
-        <button className={styles.btntouch}>Get in Touch</button>
+        <Link href={"/enquire"} className={styles.btntouch}>Get in Touch</Link>
       </div>
     </section>
   );

@@ -9,11 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/adapter-planetscale": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/bcryptjs": "^2.4.6",
+    "axios": "^1.21.0",
+    "bcryptjs": "^3.0.3",
     "lucide-react": "^1.61.0",
     "mysql2": "^3.24.6",
     "next": "16.4.3",
+    "postcss": "^8.5.32",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "react-toastify": "^11.2.0",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@types/node": "^20",
