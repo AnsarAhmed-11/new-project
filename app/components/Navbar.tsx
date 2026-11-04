@@ -12,19 +12,19 @@ export default function Navbar() {
   const [authStatus, setAuthStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [authMessage, setAuthMessage] = useState("");
 
-  const showAuthForm = (mode: "signin" | "signup") => {
-    setOpen(false);
-    setAuthMode(mode);
-    setAuthStatus("idle");  
-    setAuthMessage("");
-  };
+  // const showAuthForm = (mode: "signin" | "signup") => {
+  //   setOpen(false);
+  //   setAuthMode(mode);
+  //   setAuthStatus("idle");  
+  //   setAuthMessage("");
+  // };
 
   const submitAuth = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setAuthStatus("loading");
     setAuthMessage("");
-
-    const formData = new FormData(event.currentTarget);
+    const form=event.currentTarget.reset();
+    const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
     try {
@@ -53,7 +53,7 @@ export default function Navbar() {
       <div className={styles.bar}>
         <div className={styles.container}>
           <a href="#home" aria-label="Merciful Tools home" className={styles.brand}>
-            <Image className={styles.logo} src="/solid-center.jpg" alt="Solid center" width={48} height={48} />
+            <Image className={styles.logo} src="/solid-center.jpg" alt="Solid center" width={30} height={40} priority/>
             {/* <div className={styles.brandText}>
               <h1>MERCIFUL</h1>
               <p>TOOLS</p>

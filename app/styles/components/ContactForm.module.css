@@ -115,20 +115,8 @@
 .form textarea {
   resize: vertical;
 }
-.form button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  width: 100%;
-  border: 0;
-  border-radius: 8px;
-  background: var(--orange);
-  color: #090a0b;
-  padding: 15px;
-  font: inherit;
-  font-weight: 700;
-}
+.form button { width: 100%; }
+.submitButton { min-height: 50px; }
 .form button:disabled {
   cursor: wait;
   opacity: 0.65;

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Mail, MapPin } from "lucide-react";
 import { FormEvent, useState } from "react";
 import styles from "@/app/styles/components/ContactForm.module.css";
+import { Button } from "@/app/components/ui/Button";
 
 export default function ContactForm() {
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,7 @@ export default function ContactForm() {
         <div className={styles.fields}><label>Full name<input name="name" required placeholder="Your name" /></label><label>Email address<input name="email" type="email" required placeholder="you@company.com" /></label><label>Phone number<input name="phone" required placeholder="+91 XXXXX XXXXX" /></label><label>Company<input name="company" placeholder="Company name" /></label></div>
         <label>What can we help with?<select name="product" defaultValue="" required><option value="" disabled>Select an option</option><option>Precision Tools</option><option>Industrial Tools</option><option>Custom Requirements</option><option>Other</option></select></label>
         <label>Your message<textarea name="message" rows={4} required placeholder="Tell us about your requirements..." /></label>
-        <button type="submit" disabled={loading}>{loading ? "Sending..." : "Send message"}<ArrowUpRight size={17} /></button>
+        <Button type="submit" disabled={loading} className={styles.submitButton}>{loading ? "Sending..." : "Send message"}<ArrowUpRight size={17} /></Button>
         {status && <p className={`${styles.status} ${error ? styles.error : styles.success}`} role="status">{status}</p>}
       </motion.form>
     </div>
