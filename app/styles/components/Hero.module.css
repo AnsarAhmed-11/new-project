@@ -88,6 +88,7 @@
     font-weight: 700;
     transition: background .2s ease;
 }
+.actions { display: flex; align-items: center; gap: 20px; }
 
 .cta:hover,
 .cta:focus-visible {
@@ -126,7 +127,7 @@
     padding: 15px ;
     border: 2px solid var(--orange);
     border-radius: 15px;
-    margin-left: 20px;  
+    margin-left: 0;
     letter-spacing: 1px;
 }
 .btntouch:hover{
@@ -139,4 +140,7 @@
         padding-right: 40px;
         padding-left: 40px;
     }
+}
+@media (max-width: 639px) {
+    .actions { align-items: flex-start; flex-direction: column; gap: 14px; }
 }

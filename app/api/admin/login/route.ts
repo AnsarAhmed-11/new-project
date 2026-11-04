@@ -13,7 +13,9 @@ export async function POST(request: Request) {
         { message: "Invalid email or password." },
         { status: 401 }); return NextResponse.json({ admin });
   }
-  catch {
+  catch (err){
+    console.log(err);
+    
     return NextResponse.json(
       { message: "Unable to sign in." },
       { status: 500 });

@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import Navbar from "@/app/components/Navbar";
 import ProductCard from "@/app/components/ProductCard";
 import { products } from "@/app/components/data";
@@ -11,11 +14,11 @@ export default function ProductsPage() {
 
       <section className={styles.section}>
         <div className={styles.container}>
-          <p className={styles.eyebrow}>Our range</p>
-          <h1>All <span>Products</span></h1>
-          <p className={styles.description}>
+          <motion.p className={styles.eyebrow} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>Our range</motion.p>
+          <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6, delay: .08 }}>All <span>Products</span></motion.h1>
+          <motion.p className={styles.description} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: .6, delay: .18 }}>
             Precision tools designed for accuracy, durability and professional performance.
-          </p>
+          </motion.p>
 
           <div className={styles.products}>
             {products.map((product) => (

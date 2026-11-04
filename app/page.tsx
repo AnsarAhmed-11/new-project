@@ -3,6 +3,7 @@ import Hero from "@/app/components/Hero";
 import TrustFeatures from "@/app/components/TrustFeatures";
 import CategoryBar from "@/app/components/CategoryBar";
 import FeaturedProducts from "@/app/components/FeaturedProducts";
+import ContactForm from "@/app/components/ContactForm";
 import Footer from "@/app/components/Footer";
 
 export default function Home() {
@@ -17,6 +18,8 @@ export default function Home() {
       <CategoryBar />
 
       <FeaturedProducts />
+
+      <ContactForm />
 
       <Footer />
     </main>

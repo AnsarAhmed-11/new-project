@@ -1,11 +1,12 @@
 import { ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import styles from "@/app/styles/components/ProductCard.module.css";
 
 type ProductCardProps = { name: string; image: string; description?: string };
 
 export default function ProductCard({ name, image, description }: ProductCardProps) {
-  return <article className={styles.card}>
+  return <motion.article className={styles.card} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .2 }} transition={{ duration: .55 }}>
     <div className={styles.imageWrap}>
       <Image
         src={image}
@@ -23,5 +24,5 @@ export default function ProductCard({ name, image, description }: ProductCardPro
         <ArrowUpRight size={17} aria-hidden="true" />
       </button>
     </div>
-  </article>;
+  </motion.article>;
 }
