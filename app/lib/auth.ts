@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { createHash, randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
-import { db } from "@/app/lib/db";
+import db  from "../lib/db";
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
 import { findAdminByEmail } from "@/app/models/adminModel";
 

@@ -33,15 +33,15 @@
   display: flex;
   align-items: center;
 }
-
+  /* mobile */
 .logo {
-  width: 60px;
-  height: 30px;
-  border-radius: 6px;
-  object-fit: contain ;
-  scale: 4;
-  position: relative;
-  left: 3rem;
+  display: block;
+  width: clamp(190px, 58vw, 280px);
+  height: auto;
+  aspect-ratio: 1440 / 468;
+  object-fit: contain;
+  object-position: center;
+  padding: 0;
 }
 
 .brandText {
@@ -332,13 +332,10 @@
     padding-right: 24px;
     padding-left: 24px;
   }
-
+  /* desktop */
   .logo {
-    width: 100px;
-    height: 50px;
-    scale: 3;
-    position: relative;
-    left:60px ;
+    width: 360px;
+    height: auto;
   }
 
   .brandText h1 {

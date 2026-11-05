@@ -1,6 +1,6 @@
 const PRODUCT_IMAGE_FOLDER = "/products";
 
-function safeFile() {
+function safeFileName(value) {
   return String(value || "product-image")
     .trim()
     .toLowerCase()
@@ -8,22 +8,18 @@ function safeFile() {
     .replace(/(^-|-$)/g, "");
 }
 
-export const imagekitConfiguration = () => {
+export function getImageKitConfig() {
   return {
     publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-    urlEndpoint: IMAGEKIT_URL_ENDPOINT,
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
   };
-};
+}
+
 export function prepareProductImageUpload({ imageName, slug, productName }) {
-  const extension = String(imageName || "")
-    .split(".")
-    .pop();
+  const extension = String(imageName || "").split(".").pop();
   const baseName = safeFileName(slug || productName || "product");
-  const fileName =
-    extension && extension !== imageName
-      ? `${baseName}.${extension}`
-      : baseName;
+  const fileName = extension && extension !== imageName ? `${baseName}.${extension}` : baseName;
 
   return {
     fileName,

@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await createEnquiry({
+    const result=await createEnquiry({
       name: name.trim(),
       email: email.trim().toLowerCase(),
       product: product.trim(),
@@ -28,7 +28,8 @@ export async function POST(request: Request) {
       message: message.trim(),
       company: company?.trim(),
     });
-
+    console.log(result);
+    
     return NextResponse.json(
       {
         message: "Enquiry submitted successfully!",

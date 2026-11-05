@@ -37,3 +37,14 @@ CREATE TABLE IF NOT EXISTS admin_sessions (
   KEY admin_sessions_expiry_idx (expires_at),
   CONSTRAINT admin_sessions_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS products (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(160) NOT NULL,
+  description TEXT NULL,
+  image_url VARCHAR(500) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY products_created_at_idx (created_at)
+);

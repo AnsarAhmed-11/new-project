@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
-import { db } from "@/app/lib/db";
+import db from "@/app/lib/db";
 
 export type AdminRecord = {
   id: number;

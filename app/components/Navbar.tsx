@@ -9,13 +9,15 @@ import styles from "@/app/styles/components/Navbar.module.css";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup" | null>(null);
-  const [authStatus, setAuthStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [authStatus, setAuthStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [authMessage, setAuthMessage] = useState("");
 
   // const showAuthForm = (mode: "signin" | "signup") => {
   //   setOpen(false);
   //   setAuthMode(mode);
-  //   setAuthStatus("idle");  
+  //   setAuthStatus("idle");
   //   setAuthMessage("");
   // };
 
@@ -23,7 +25,7 @@ export default function Navbar() {
     event.preventDefault();
     setAuthStatus("loading");
     setAuthMessage("");
-    const form=event.currentTarget.reset();
+    const form = event.currentTarget;
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
@@ -39,12 +41,17 @@ export default function Navbar() {
         throw new Error(result.message || "Authentication failed.");
       }
 
+      form.reset();
       setAuthStatus("success");
       setAuthMessage(result.message);
       event.currentTarget.reset();
     } catch (error) {
       setAuthStatus("error");
-      setAuthMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+      setAuthMessage(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
     }
   };
 
@@ -52,8 +59,20 @@ export default function Navbar() {
     <header className={styles.header}>
       <div className={styles.bar}>
         <div className={styles.container}>
-          <a href="#home" aria-label="Merciful Tools home" className={styles.brand}>
-            <Image className={styles.logo} src="/solid-center.jpg" alt="Solid center" width={30} height={40} priority/>
+          <a
+            href="#home"
+            aria-label="Merciful Tools home"
+            className={styles.brand}
+          >
+            <Image
+              className={styles.logo}
+              src="/merciful-logo.png"
+              alt="Merciful Tools"
+              width={360}
+              height={117}
+              priority
+              quality={100}
+            />
             {/* <div className={styles.brandText}>
               <h1>MERCIFUL</h1>
               <p>TOOLS</p>
@@ -61,7 +80,10 @@ export default function Navbar() {
           </a>
 
           <nav aria-label="Primary navigation" className={styles.desktopNav}>
-            <Link href="/" className={styles.active}>Home<span /></Link>
+            <Link href="/" className={styles.active}>
+              Home
+              <span />
+            </Link>
             <Link href="/products">Products</Link>
             <Link href="/about">About</Link>
             <a href="#contact">Contact</a>
@@ -70,14 +92,32 @@ export default function Navbar() {
           <div className={styles.actions}>
             {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signin")}>Sign in</button> */}
             {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signup")}>Sign up</button> */}
-            <Link href="/enquire" className={styles.cta}>Enquire Now<ArrowUpRight size={17} aria-hidden="true" /></Link>
-            <button type="button" aria-label="Search" className={styles.iconButton}>
+            <Link href="/enquire" className={styles.cta}>
+              Enquire Now
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <button
+              type="button"
+              aria-label="Search"
+              className={styles.iconButton}
+            >
               <Search size={26} strokeWidth={1.7} aria-hidden="true" />
             </button>
           </div>
 
-          <button type="button" className={styles.menuButton} onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="mobile-navigation">
-            {open ? <X size={28} aria-hidden="true" /> : <Menu size={28} aria-hidden="true" />}
+          <button
+            type="button"
+            className={styles.menuButton}
+            onClick={() => setOpen(!open)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
+          >
+            {open ? (
+              <X size={28} aria-hidden="true" />
+            ) : (
+              <Menu size={28} aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>
@@ -85,15 +125,34 @@ export default function Navbar() {
       {open && (
         <div id="mobile-navigation" className={styles.mobilePanel}>
           <nav aria-label="Mobile navigation" className={styles.mobileNav}>
-            <a className={styles.mobileActive} href="#home" onClick={() => setOpen(false)}>Home</a>
-            <Link href="/products" onClick={() => setOpen(false)}>Products</Link>
-            <a href="#about" onClick={() => setOpen(false)}>About</a>
-            <a href="#contact" onClick={() => setOpen(false)}>Contact</a>
+            <a
+              className={styles.mobileActive}
+              href="#home"
+              onClick={() => setOpen(false)}
+            >
+              Home
+            </a>
+            <Link href="/products" onClick={() => setOpen(false)}>
+              Products
+            </Link>
+            <a href="#about" onClick={() => setOpen(false)}>
+              About
+            </a>
+            <a href="#contact" onClick={() => setOpen(false)}>
+              Contact
+            </a>
             <div className={styles.mobileAuth}>
               {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signin")}>Sign in</button> */}
               {/* <button type="button" className={styles.authButton} onClick={() => showAuthForm("signup")}>Sign up</button> */}
             </div>
-            <a href="#contact" onClick={() => setOpen(false)} className={styles.mobileCta}>Enquire Now<MoveRight size={17} aria-hidden="true" /></a>
+            <a
+              href="#contact"
+              onClick={() => setOpen(false)}
+              className={styles.mobileCta}
+            >
+              Enquire Now
+              <MoveRight size={17} aria-hidden="true" />
+            </a>
           </nav>
         </div>
       )}

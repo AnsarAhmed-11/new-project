@@ -9,5 +9,4 @@ const db = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
 });
-export { db };
 export default db;
