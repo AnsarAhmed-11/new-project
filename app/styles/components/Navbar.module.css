@@ -1,7 +1,7 @@
 @theme inline {
   --font-sans: var(--font-inter);
-  --font-encode:var(--font-encode);
-  --font-cinzel:var(--font-cinzel);
+  --font-encode: var(--font-encode);
+  --font-cinzel: var(--font-cinzel);
 }
 .header {
   position: absolute;
@@ -16,7 +16,7 @@
   backdrop-filter: blur(16px);
 }
 
-.container { 
+.container {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,7 +25,7 @@
   padding: 16px 20px;
   /* border: 2px solid red;  */
   overflow: hidden;
-  font-family: var(--font-cinzel);  
+  font-family: var(--font-cinzel);
   font-weight: bolder;
 }
 
@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
 }
-  /* mobile */
+/* mobile */
 .logo {
   display: block;
   width: clamp(190px, 58vw, 280px);
@@ -60,7 +60,7 @@
   color: var(--orange);
   font-size: 1rem;
   font-weight: 700;
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
 }
 
 .desktopNav {
@@ -71,7 +71,7 @@
 
 .desktopNav a {
   font-weight: 500;
-  transition: color .2s ease;
+  transition: color 0.2s ease;
   font-family: var(--font-cinzel);
 }
 
@@ -81,8 +81,8 @@
 }
 
 .desktopNav .active {
-  position: relative;
-  color: var(--orange);
+  color: #f97316 !important;
+  font-weight: 600;
 }
 
 .active span {
@@ -122,7 +122,9 @@
   border-radius: 12px;
   padding: 10px 20px;
   font-weight: 600;
-  transition: background .2s ease, color .2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .cta:hover,
@@ -140,7 +142,7 @@
 
 .iconButton {
   padding: 8px;
-  transition: color .2s ease;
+  transition: color 0.2s ease;
 }
 
 .iconButton:hover,
@@ -171,7 +173,9 @@
   border-radius: 8px;
   padding: 12px;
   font-weight: 500;
-  transition: background .2s ease, color .2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .mobileNav a:hover {
@@ -180,7 +184,8 @@
 }
 
 .mobileActive {
-  color: var(--orange);
+  color: #f97316 !important;
+  font-weight: 600;
 }
 
 .mobileCta {
@@ -232,9 +237,9 @@
 .authEyebrow {
   margin: 0;
   color: var(--orange);
-  font-size: .75rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: .2em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
@@ -259,7 +264,7 @@
   display: grid;
   gap: 8px;
   color: rgb(255 255 255 / 80%);
-  font-size: .875rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
@@ -294,12 +299,12 @@
 
 .authSubmit:disabled {
   cursor: wait;
-  opacity: .65;
+  opacity: 0.65;
 }
 
 .authMessage {
   margin: 16px 0 0;
-  font-size: .875rem;
+  font-size: 0.875rem;
   line-height: 1.4;
   text-align: center;
 }
@@ -315,7 +320,7 @@
 .authSwitch {
   margin: 20px 0 0;
   color: rgb(255 255 255 / 60%);
-  font-size: .875rem;
+  font-size: 0.875rem;
   text-align: center;
 }
 

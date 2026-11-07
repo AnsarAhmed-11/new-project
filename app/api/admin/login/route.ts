@@ -5,19 +5,23 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     if (typeof body.email !== "string" || typeof body.password !== "string")
-      return NextResponse.json({ message: "Email and password are required." },
-        { status: 400 });
+      return NextResponse.json(
+        { message: "Email and password are required." },
+        { status: 400 },
+      );
     const admin = await authenticateAdmin(body.email, body.password);
     if (!admin)
       return NextResponse.json(
         { message: "Invalid email or password." },
-        { status: 401 }); return NextResponse.json({ admin });
-  }
-  catch (err){
+        { status: 401 },
+      );
+    return NextResponse.json({ admin});
+  } catch (err) {
     console.log(err);
-    
+
     return NextResponse.json(
       { message: "Unable to sign in." },
-      { status: 500 });
+      { status: 500 },
+    );
   }
 }

@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/admin/Sidebar";
+import {toast} from "sonner";
 
 type Product = {
   id: number;
@@ -11,21 +12,70 @@ type Product = {
   description: string | null;
   imageUrl: string;
 };
-
+//  const categories = [
+//   {
+//     label: "Lathe Machine Tools",
+//     value: "lathe-machine-tools",
+//   },
+//   {
+//     label: "Revolving Centres",
+//     value: "revolving-centres",
+//   },
+//   {
+//     label: "Dead Centres",
+//     value: "dead-centres",
+//   },
+//   {
+//     label: "Precision Measuring Tools",
+//     value: "precision-measuring-tools",
+//   },
+//   {
+//     label: "Machine Tool Accessories",
+//     value: "machine-tool-accessories",
+//   },
+//   {
+//     label: "Collets & Sleeves",
+//     value: "collets-sleeves",
+//   },
+//   {
+//     label: "Tool Holders",
+//     value: "tool-holders",
+//   },
+//   {
+//     label: "Special Purpose Tools",
+//     value: "special-purpose-tools",
+//   },
+//   {
+//     label: "Other Products",
+//     value: "other-products",
+//   },
+// ];
 export default function ProductManager() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [slug, setSlug] = useState("");
+  const [sku, setSku] = useState("");
+  const [status, setStatus] = useState("");
+  const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   async function loadProducts() {
-    const response = await fetch("/api/admin/products");
-    if (response.ok) setProducts((await response.json()).data);
+    try {
+      const response = await fetch("/api/admin/products");
+      if (!response.ok) {
+        setError("Unable to load products.");
+        return;
+      }
+
+      const result = await response.json();
+      setProducts(Array.isArray(result.data) ? result.data : []);
+    } catch {
+      setError("Unable to load products.");
+    }
   }
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -36,28 +86,60 @@ export default function ProductManager() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!name.trim()) {
+      return toast.error("Product name is required");
+    }
+
+    if (!slug.trim()) {
+      return toast.error("Product slug is required");
+    }
+
+    if (!description.trim()) {
+      return toast.error("Product description is required");
+    }
+
+    if (!sku.trim()) {
+      return toast.error("Product SKU is required");
+    }
+
+    if (!["inStock", "outOfStock"].includes(status)) {
+  return toast.error("Please select a valid product status");
+}
+    if (!image) {
+      return toast.error("image is required");
+    }
+    console.log(status);
+
     setSaving(true);
     setMessage("");
-    setError("");
+    // setError("");
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
     if (image) formData.append("image", image);
-    const response = await fetch("/api/admin/products", {
-      method: "POST",
-      body: formData,
-    });
-    const result = await response.json();
-    if (!response.ok) setError(result.message || "Unable to save product.");
-    else {
-      setMessage(result.message);
+    try {
+      const response = await fetch("/api/admin/products", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.message || "Unable to save product.");
+        return;
+      }
+
+      setMessage(result.message || "Product added successfully.");
       setName("");
       setDescription("");
       setImage(null);
       event.currentTarget.reset();
-      await loadProducts();
+      // await loadProducts();
+    } catch {
+      setError("Unable to save product. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -78,8 +160,9 @@ export default function ProductManager() {
           </p>
         </div>
         <section className="max-w-2xl rounded-xl border border-white/10 bg-[#101315] p-5 sm:p-6">
-          <h2 className="text-lg font-semibold">Add product</h2>
-          <form onSubmit={submit} className="mt-5 grid gap-4">
+          <h2 className="text-lg font-semibold">Add New Product</h2>
+          <form onSubmit={submit} className="mt-5 grid gap-4" noValidate>
+            {/* Product name */}
             <label className="grid gap-2 text-sm text-gray-300">
               Product name
               <input
@@ -87,31 +170,30 @@ export default function ProductManager() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
+                placeholder="Enter product name"
               />
             </label>
-            <label className="grid gap-2 text-sm text-gray-300 relative">
-              Product Slug
+            <label className="grid gap-2 text-sm text-gray-300">
+              Product slug
               <input
                 required
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
+                placeholder="e.g. hydraulic-pipe-cutter"
               />
-              <div
-                className="h-7 max-w-max absolute bottom-2 right-0 scale-0.5 rounded-xl p-0.5 bg-amber-600 text-white"
-                onClick={() => {
-                  const makeslug = name
-                    .toLowerCase()
-                    .trim()
-                    .replace(/[^a-z0-9\s-]/g, "")
-                    .replace(/\s+/g, "-")
-                    .replace(/-+/g, "-");
-                  setSlug(makeslug);
-                }}
-              >
-                Generate Slug
-              </div>
             </label>
+            <label className="grid gap-2 text-sm text-gray-300">
+              Product Sku / Code
+              <input
+                required
+                value={sku}
+                onChange={(e) => setSku(e.target.value)}
+                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
+                placeholder="e.g. MTL-HP-001"
+              />
+            </label>
+            {/* Product Description */}
             <label className="grid gap-2 text-sm text-gray-300">
               Description
               <textarea
@@ -119,7 +201,20 @@ export default function ProductManager() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
                 className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
+                placeholder="Enter detailed product description"
               />
+            </label>
+            <label className="grid gap-2 text-sm text-gray-300">
+              Status
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
+              > 
+                <option value="" disabled>Select Status</option>
+                <option value="inStock">In Stock</option>
+                <option value="outOfStock">Out of Stock</option>
+              </select>
             </label>
             <label className="grid gap-2 text-sm text-gray-300">
               Product image

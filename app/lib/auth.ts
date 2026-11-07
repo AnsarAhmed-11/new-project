@@ -2,11 +2,16 @@ import { cookies } from "next/headers";
 import { createHash, randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
-import db  from "../lib/db";
+import db from "../lib/db";
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
 import { findAdminByEmail } from "@/app/models/adminModel";
 
-const COOKIE = "__Host-merciful_admin";
+// `__Host-` cookies require HTTPS. Use the hardened name in production while
+// keeping local HTTP development functional.
+const COOKIE =
+  process.env.NODE_ENV === "production"
+    ? "__Host-merciful_admin"
+    : "merciful_admin";
 const ISSUER = "merciful-tools";
 const AUDIENCE = "merciful-admin";
 const SESSION_DAYS = 7;
@@ -48,7 +53,7 @@ async function createToken(
 async function readToken(token: string) {
   try {
     return (
-      await jwtVerify<AdminClaims>(token, getSecret(), {
+      await jwtVerify(token, getSecret(), {
         algorithms: ["HS256"],
         issuer: ISSUER,
         audience: AUDIENCE,
@@ -71,7 +76,7 @@ export async function authenticateAdmin(email: string, password: string) {
   const token = await createToken(user, sessionId);
   (await cookies()).set(COOKIE, token, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_DAYS * 86400,

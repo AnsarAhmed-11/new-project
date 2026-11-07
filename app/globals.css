@@ -1,14 +1,47 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
 
 /* =========================
    ROOT VARIABLES
 ========================= */
 
 :root {
+  --orange: #ff6a00;
   --background: #080a0b;
   --foreground: #ffffff;
-  --orange: #ff6a00;
+  --card: #111416;
+  --card-foreground: #ffffff;
+  --popover: #111416;
+  --popover-foreground: #ffffff;
+  --primary: #ff6a00;
+  --primary-foreground: #ffffff;
+  --secondary: #171a1c;
+  --secondary-foreground: #ffffff;
+  --muted: #171a1c;
+  --muted-foreground: #999999;
+  --accent: #171a1c;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.09);
+  --input: #292d30;
+  --ring: #ff6a00;
+  --chart-1: #ff6a00;
+  --chart-2: #f97316;
+  --chart-3: #fb923c;
+  --chart-4: #fdba74;
+  --chart-5: #fed7aa;
+  --radius: 0.625rem;
+  --sidebar: #101315;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ff6a00;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #171a1c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.09);
+  --sidebar-ring: #ff6a00;
 }
 
 * {
@@ -17,13 +50,13 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 a {
@@ -85,7 +118,7 @@ a {
 
 .enquiry-heading {
   margin-top: 20px;
-  color: #fff;
+  color: var(--foreground);
   font-size: clamp(38px, 5vw, 65px);
   line-height: 1.1;
   font-weight: 800;
@@ -99,7 +132,7 @@ a {
 .enquiry-description {
   max-width: 500px;
   margin-top: 25px;
-  color: #999;
+  color: var(--muted-foreground);
   font-size: 16px;
   line-height: 1.9;
 }
@@ -108,10 +141,10 @@ a {
 
 .enquiry-card {
   padding: 38px;
-  border: 1px solid rgba(255,255,255,0.09);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  background: #111416;
-  box-shadow: 0 20px 70px rgba(0,0,0,0.4);
+  background: var(--card);
+  box-shadow: 0 20px 70px rgba(30, 20, 10, 0.12);
   transition: border-color 0.3s ease;
 }
 
@@ -120,14 +153,14 @@ a {
 }
 
 .enquiry-card h3 {
-  color: #fff;
+  color: var(--card-foreground);
   font-size: 28px;
   font-weight: 700;
 }
 
 .enquiry-card > p {
   margin: 8px 0 28px;
-  color: #888;
+  color: var(--muted-foreground);
   font-size: 14px;
 }
 
@@ -150,7 +183,7 @@ a {
 .enquiry-field label {
   display: block;
   margin-bottom: 9px;
-  color: #d1d1d1;
+  color: var(--foreground);
   font-size: 13px;
   font-weight: 500;
 }
@@ -161,10 +194,10 @@ a {
   width: 100%;
   padding: 14px 15px;
   outline: none;
-  border: 1px solid #292d30;
+  border: 1px solid var(--input);
   border-radius: 8px;
-  background: #171a1c;
-  color: #fff;
+  background: var(--background);
+  color: var(--foreground);
   font-family: inherit;
   font-size: 14px;
   transition: all 0.3s ease;
@@ -179,12 +212,12 @@ a {
 
 .enquiry-field input::placeholder,
 .enquiry-field textarea::placeholder {
-  color: #686868;
+  color: var(--muted-foreground);
 }
 
 .enquiry-field select option {
-  background: #171a1c;
-  color: #fff;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 .enquiry-field textarea {
@@ -221,7 +254,7 @@ a {
 /* Privacy Note */
 
 .enquiry-note {
-  color: #777;
+  color: var(--muted-foreground);
   text-align: center;
   font-size: 12px;
 }
@@ -252,5 +285,89 @@ a {
 
   .enquiry-heading {
     font-size: 40px;
+  }
+}
+
+.dark {
+  --background: #080a0b;
+  --foreground: #ffffff;
+  --card: #111416;
+  --card-foreground: #ffffff;
+  --popover: #111416;
+  --popover-foreground: #ffffff;
+  --primary: #ff6a00;
+  --primary-foreground: #ffffff;
+  --secondary: #171a1c;
+  --secondary-foreground: #ffffff;
+  --muted: #171a1c;
+  --muted-foreground: #999999;
+  --accent: #171a1c;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.09);
+  --input: #292d30;
+  --ring: #ff6a00;
+  --sidebar: #101315;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ff6a00;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #171a1c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.09);
+  --sidebar-ring: #ff6a00;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }

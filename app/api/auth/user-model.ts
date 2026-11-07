@@ -1,5 +1,5 @@
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
-import { db } from "@/app/lib/db";
+import db from "@/app/lib/db";
 import { hashPassword } from "@/app/api/auth/password";
 
 export type UserRecord = {

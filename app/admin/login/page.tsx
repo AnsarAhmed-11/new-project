@@ -1,25 +1,33 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  async function submit(e: FormEvent) {
+  const [showPassword, setShowPassword] = useState(false);
+  async function submit(e: SubmitEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) setError(data.message || "Unable to sign in (ui)");
-    else router.push("/admin/dashboard");
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) setError(data.message || "Unable to sign in.");
+      else router.push("/admin/dashboard");
+    } catch {
+      setError("Unable to connect to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#080a0b] px-5">
@@ -50,15 +58,33 @@ export default function LoginPage() {
               className="mt-2 w-full rounded-lg border border-white/10 bg-[#171a1c] px-4 py-3 text-white outline-none focus:border-[#ff6a00]"
             />
           </label>
-          <label className="block text-sm text-gray-300">
+          <label className="block text-sm text-gray-300 relative">
             Password
             <input
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
+              onChange={(e) =>{
+                 setPassword(e.target.value)}}
+              type={showPassword ? "text" : "password"}
               required
               className="mt-2 w-full rounded-lg border border-white/10 bg-[#171a1c] px-4 py-3 text-white outline-none focus:border-[#ff6a00]"
             />
+            {showPassword ? 
+              <Eye
+                className="absolute bottom-2 right-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowPassword(true)}
+                }
+              />
+            : 
+              <EyeOff
+                className="absolute bottom-2 right-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowPassword(false)}
+                }
+              />
+            }
           </label>
           {error && <p className="text-sm text-red-400">{error}</p>}
           <button
