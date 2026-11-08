@@ -57,6 +57,7 @@ export default function ProductManager() {
   const [slug, setSlug] = useState("");
   const [sku, setSku] = useState("");
   const [status, setStatus] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [message, setMessage] = useState("");
@@ -115,7 +116,10 @@ export default function ProductManager() {
     // setError("");
     const formData = new FormData();
     formData.append("name", name);
+    formData.append("slug", slug);
+    formData.append("sku", sku);
     formData.append("description", description);
+    formData.append("sourceUrl", sourceUrl);
     if (image) formData.append("image", image);
     try {
       const response = await fetch("/api/admin/products", {
@@ -132,6 +136,9 @@ export default function ProductManager() {
       setMessage(result.message || "Product added successfully.");
       setName("");
       setDescription("");
+      setSlug("");
+      setSku("");
+      setSourceUrl("");
       setImage(null);
       event.currentTarget.reset();
       // await loadProducts();
@@ -202,6 +209,16 @@ export default function ProductManager() {
                 rows={3}
                 className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
                 placeholder="Enter detailed product description"
+              />
+            </label>
+            <label className="grid gap-2 text-sm text-gray-300">
+              Image source URL <span className="text-xs text-gray-500">Optional; uploaded files are stored locally.</span>
+              <input
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
+                placeholder="https://…"
+                type="url"
               />
             </label>
             <label className="grid gap-2 text-sm text-gray-300">

@@ -12,6 +12,10 @@ const allowedTypes = new Map([
   ["image/webp", ".webp"],
 ]);
 
+function slugify(value: string) {
+  return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 export async function GET() {
   if (!(await getAdmin()))
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -32,6 +36,9 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const name = String(formData.get("name") || "").trim();
     const description = String(formData.get("description") || "").trim();
+    const sourceUrl = String(formData.get("sourceUrl") || "").trim();
+    const slug = slugify(String(formData.get("slug") || name));
+    const sku = String(formData.get("sku") || "").trim();
     const image = formData.get("image");
     if (!name)
       return NextResponse.json(
@@ -70,6 +77,9 @@ export async function POST(request: Request) {
       name,
       description,
       imageUrl: `/uploads/products/${fileName}`,
+      sourceUrl,
+      slug,
+      sku,
     });
     return NextResponse.json(
       { id, message: "Product added successfully." },

@@ -2,8 +2,7 @@
 
 import { MoveRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { products } from "@/app/components/data";
-import ProductCard from "./ProductCard";
+import CatalogProducts from "./CatalogProducts";
 import styles from "@/app/styles/components/FeaturedProducts.module.css";
 import Link from "next/link";
 
@@ -20,7 +19,7 @@ export default function FeaturedProducts() {
           <Link href="/products" className={styles.button}>View All Products <MoveRight size={17} aria-hidden="true" /></Link>
         </motion.div>
         <div className={styles.products}>
-          {products.map((product) => <ProductCard key={product.id} {...product} />)}
+          <CatalogProducts limit={4} />
         </div>
       </div>
     </div>

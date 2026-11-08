@@ -1,0 +1,24 @@
+.page { min-height: 100vh; background: var(--background); color: #fff; }
+.main { max-width: 1240px; margin: 0 auto; padding: 144px 24px 96px; }
+.back { display: inline-flex; gap: 8px; margin-bottom: 32px; color: rgb(255 255 255 / 60%); text-decoration: none; }
+.back:hover { color: var(--orange); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); gap: clamp(32px, 7vw, 96px); align-items: start; }
+.imageWrap { position: relative; min-height: 520px; overflow: hidden; border-radius: 18px; background: #111315; }
+.image { object-fit: cover; }
+.copy { padding-top: 18px; }
+.eyebrow { margin: 0 0 12px; color: var(--orange); font-size: .78rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.title { margin: 0; font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1.02; }
+.description { max-width: 560px; margin: 24px 0 0; color: rgb(255 255 255 / 65%); font-size: 1.05rem; line-height: 1.7; }
+.meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; color: rgb(255 255 255 / 55%); font-size: .8rem; }
+.meta span { padding: 7px 10px; border: 1px solid rgb(255 255 255 / 12%); border-radius: 999px; }
+.priceSection { margin-top: 42px; }
+.priceSection h2 { margin: 0 0 14px; font-size: 1.2rem; }
+.prices { overflow: hidden; border: 1px solid rgb(255 255 255 / 12%); border-radius: 12px; }
+.row { display: flex; justify-content: space-between; gap: 20px; padding: 14px 16px; border-bottom: 1px solid rgb(255 255 255 / 9%); color: rgb(255 255 255 / 72%); }
+.row:last-child { border-bottom: 0; }
+.row b { color: #fff; white-space: nowrap; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.button { display: inline-flex; align-items: center; gap: 9px; padding: 13px 18px; border-radius: 8px; background: var(--orange); color: #090a0a; font-weight: 700; text-decoration: none; }
+.secondary { display: inline-flex; align-items: center; padding: 13px 18px; border: 1px solid rgb(255 255 255 / 18%); border-radius: 8px; color: #fff; text-decoration: none; }
+.notice { padding: 160px 24px; text-align: center; }
+@media (max-width: 800px) { .main { padding-top: 112px; } .layout { grid-template-columns: 1fr; } .imageWrap { min-height: 360px; } }

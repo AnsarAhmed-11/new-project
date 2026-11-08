@@ -6,17 +6,14 @@ import { toast } from "sonner";
 
 export default function EnquiryForm() {
   const [loading, setLoading] = useState(false);
-
   const inputStyle =
     "w-full rounded-lg border border-white/10 bg-[#171a1c] px-4 py-3 text-white outline-none transition placeholder:text-gray-500 focus:border-[#ff6a00] focus:ring-1 focus:ring-[#ff6a00] disabled:cursor-not-allowed disabled:opacity-60";
 
   const labelStyle = "mb-2 block text-sm font-medium text-gray-300";
 
-  const validateEmail = (value) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const validatePhone = (value) =>
-    /^[6-9]\d{9}$/.test(value);
+  const validatePhone = (value) => /^[6-9]\d{9}$/.test(value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +28,7 @@ export default function EnquiryForm() {
       email: String(formData.get("email") || "").trim(),
       phone: String(formData.get("phone") || "").trim(),
       company: String(formData.get("company") || "").trim(),
-      product: String(formData.get("product") || "").trim(),
+      product: selectedProduct.trim(),
       message: String(formData.get("message") || "").trim(),
     };
 
@@ -66,7 +63,7 @@ export default function EnquiryForm() {
 
     if (payload.message.length < 10 || payload.message.length > 3000) {
       return toast.error(
-        "Requirements must be between 10 and 3000 characters!"
+        "Requirements must be between 10 and 3000 characters!",
       );
     }
 
@@ -80,14 +77,14 @@ export default function EnquiryForm() {
           success: (res) =>
             res.data.message || "Enquiry submitted successfully!",
           error: (error) =>
-            error.response?.data?.message ||
-            "Unable to submit enquiry!",
-        }
+            error.response?.data?.message || "Unable to submit enquiry!",
+        },
       );
 
       console.log("Enquiry Response:", response.data);
 
       form.reset();
+      setSelectedProduct("");
     } catch (error) {
       console.error("Enquiry Error:", error);
     } finally {
@@ -104,7 +101,6 @@ export default function EnquiryForm() {
       <div className="pointer-events-none absolute -right-40 top-10 h-96 w-96 rounded-full bg-[#ff6a00]/10 blur-[130px]" />
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
-
         {/* Left Content */}
         <div>
           <span className="text-sm font-bold uppercase tracking-[4px] text-[#ff6a00]">
@@ -113,15 +109,13 @@ export default function EnquiryForm() {
 
           <h2 className="mt-5 text-4xl font-bold leading-tight text-white md:text-6xl">
             Let&apos;s Discuss Your
-            <span className="block text-[#ff6a00]">
-              Requirements.
-            </span>
+            <span className="block text-[#ff6a00]">Requirements.</span>
           </h2>
 
           <p className="mt-6 max-w-lg text-base leading-8 text-gray-400">
-            Looking for high-quality precision tools? Share your
-            requirements with us. Our team will help you find the
-            right solution for your business.
+            Looking for high-quality precision tools? Share your requirements
+            with us. Our team will help you find the right solution for your
+            business.
           </p>
 
           <div className="mt-10 space-y-6">
@@ -144,20 +138,14 @@ export default function EnquiryForm() {
 
         {/* Enquiry Form */}
         <div className="rounded-2xl border border-white/10 bg-[#111416] p-6 shadow-2xl md:p-9">
-          <h3 className="text-2xl font-bold text-white">
-            Enquire Now
-          </h3>
+          <h3 className="text-2xl font-bold text-white">Enquire Now</h3>
 
           <p className="mb-8 mt-2 text-sm text-gray-400">
             Fill in the details below.
           </p>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
-
               {/* Full Name */}
               <div>
                 <label htmlFor="name" className={labelStyle}>
@@ -255,21 +243,14 @@ export default function EnquiryForm() {
                 <option value="" disabled>
                   Select a product
                 </option>
-                <option value="Precision Tools">
-                  Precision Tools
-                </option>
-                <option value="Industrial Tools">
-                  Industrial Tools
-                </option>
-                <option value="Cutting Tools">
-                  Cutting Tools
-                </option>
-                <option value="Custom Requirements">
-                  Custom Requirements
-                </option>
+                <option value="Precision Tools">Precision Tools</option>
+                <option value="Industrial Tools">Industrial Tools</option>
+                <option value="Cutting Tools">Cutting Tools</option>
+                <option value="Custom Requirements">Custom Requirements</option>
                 <option value="Other">Other</option>
               </select>
             </div>
+          
 
             {/* Requirements */}
             <div>

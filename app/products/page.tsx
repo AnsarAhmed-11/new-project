@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import Navbar from "@/app/components/Navbar";
-import ProductCard from "@/app/components/ProductCard";
-import { products } from "@/app/components/data";
+import CatalogProducts from "@/app/components/CatalogProducts";
 import Footer from "@/app/components/Footer";
 import styles from "@/app/styles/components/ProductsPage.module.css";
 
@@ -40,9 +39,7 @@ export default function ProductsPage() {
           </motion.p>
 
           <div className={styles.products}>
-            {products.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
+            <CatalogProducts />
           </div>
         </div>
       </section>

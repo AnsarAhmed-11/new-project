@@ -44,6 +44,17 @@
     margin-top: 48px;
 }
 
+.loading,
+.empty {
+    grid-column: 1 / -1;
+    min-height: 180px;
+    display: grid;
+    place-items: center;
+    border: 1px dashed rgb(255 255 255 / 15%);
+    border-radius: 12px;
+    color: rgb(255 255 255 / 55%);
+}
+
 @media (min-width: 640px) {
     .products {
         grid-template-columns: repeat(2, 1fr);
