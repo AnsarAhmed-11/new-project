@@ -23,7 +23,7 @@ export default function LoginPage() {
 
       if (!res.ok) setError(data.message || "Unable to sign in.");
       else router.push("/admin/dashboard");
-    } catch {
+    } catch (err){
       setError("Unable to connect to the server. Please try again.");
     } finally {
       setLoading(false);

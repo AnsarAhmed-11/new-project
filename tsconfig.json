@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/enquire/page.jsx"  ],
+, "app/enquire/page.jsx", "app/lib/db.js"  ],
   "exclude": ["node_modules"]
 }
