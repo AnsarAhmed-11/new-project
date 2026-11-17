@@ -25,7 +25,7 @@ function ProductSkeleton() {
   );
 }
 
-function ProductLoadingSkeleton() {
+function ProductLoadingSkeleton({ count }: { count: number }) {
   return (
     <div
       className={styles.skeletonGrid}
@@ -33,7 +33,7 @@ function ProductLoadingSkeleton() {
       aria-label="Loading products"
       aria-live="polite"
     >
-      {Array.from({ length: 8 }, (_, index) => (
+      {Array.from({ length: count }, (_, index) => (
         <ProductSkeleton key={index} />
       ))}
       <span className={styles.srOnly}>Loading products…</span>
@@ -63,7 +63,7 @@ export default function CatalogProducts({ limit }: { limit?: number }) {
     return () => controller.abort();
   }, []);
 
-  if (loading) return <ProductLoadingSkeleton />;
+  if (loading) return <ProductLoadingSkeleton count={limit ?? 8} />;
 
   if (!products.length)
     return <p className={styles.empty}>No products are available yet.</p>;
