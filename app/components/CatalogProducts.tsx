@@ -13,30 +13,61 @@ type Product = {
   prices?: ProductPrice[];
 };
 
+function ProductSkeleton() {
+  return (
+    <article className={styles.skeletonCard} aria-hidden="true">
+      <div className={styles.skeletonImage} />
+      <div className={styles.skeletonInfo}>
+        <div className={styles.skeletonTitle} />
+        <div className={styles.skeletonDescription} />
+      </div>
+    </article>
+  );
+}
+
+function ProductLoadingSkeleton() {
+  return (
+    <div
+      className={styles.skeletonGrid}
+      role="status"
+      aria-label="Loading products"
+      aria-live="polite"
+    >
+      {Array.from({ length: 8 }, (_, index) => (
+        <ProductSkeleton key={index} />
+      ))}
+      <span className={styles.srOnly}>Loading products…</span>
+    </div>
+  );
+}
+
 export default function CatalogProducts({ limit }: { limit?: number }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
+
     fetch("/api/products", { signal: controller.signal })
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((result) =>
         setProducts(Array.isArray(result.data) ? result.data : []),
       )
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!controller.signal.aborted) setProducts([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
     return () => controller.abort();
   }, []);
 
-  if (loading)
-    return (
-      <div className={styles.loading} aria-live="polite">
-        Loading products…
-      </div>
-    );
+  if (loading) return <ProductLoadingSkeleton />;
+
   if (!products.length)
     return <p className={styles.empty}>No products are available yet.</p>;
+
   return (
     <>
       {(limit ? products.slice(0, limit) : products).map((product) => (
