@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import ProductCard, { ProductPrice } from "@/app/components/ProductCard";
+import ProductLoadingSkeleton from "@/app/components/ProductSkeleton";
 import styles from "@/app/styles/components/ProductsPage.module.css";
-
 type Product = {
   id: number;
   name: string;
@@ -29,12 +29,7 @@ export default function CatalogProducts({ limit }: { limit?: number }) {
     return () => controller.abort();
   }, []);
 
-  if (loading)
-    return (
-      <div className={styles.loading} aria-live="polite">
-        Loading products…
-      </div>
-    );
+  if (loading) return <ProductLoadingSkeleton count={limit ?? 8} />;
   if (!products.length)
     return <p className={styles.empty}>No products are available yet.</p>;
   return (

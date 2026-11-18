@@ -48,6 +48,7 @@
 .empty {
     grid-column: 1 / -1;
     min-height: 180px;
+    height: 400px;
     display: grid;
     place-items: center;
     border: 1px dashed rgb(255 255 255 / 15%);

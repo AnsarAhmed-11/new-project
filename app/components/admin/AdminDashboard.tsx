@@ -83,10 +83,13 @@ export default function AdminDashboard() {
     }
     const list = await listRes.json();
     const stat = await statsRes.json();
+    console.log("list", list);
+    console.log("stat", stat);
     if (!listRes.ok) {
       setError(list.message || "Unable to load enquiries");
     } else {
-      setItems(list.data);
+      console.log(list?.result?.data);
+      setItems(list?.result?.data);
       setTotalPages(list.totalPages || 1);
     }
     if (statsRes.ok) setStats(stat);
@@ -236,7 +239,11 @@ export default function AdminDashboard() {
               <p className="p-10 text-center text-gray-500">
                 Loading enquiries…
               </p>
-            ) : items.length === 0 ? (
+            ) : !items || items.length === 0 ? (
+              <p className="p-10 text-center text-gray-500">
+                No enquiries match your filters.
+              </p>
+            ) : !items || items.length === 0 ? (
               <p className="p-10 text-center text-gray-500">
                 No enquiries match your filters.
               </p>

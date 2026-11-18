@@ -23,7 +23,7 @@ export default function LoginPage() {
 
       if (!res.ok) setError(data.message || "Unable to sign in.");
       else router.push("/admin/dashboard");
-    } catch (err){
+    } catch (err) {
       setError("Unable to connect to the server. Please try again.");
     } finally {
       setLoading(false);
@@ -62,29 +62,32 @@ export default function LoginPage() {
             Password
             <input
               value={password}
-              onChange={(e) =>{
-                 setPassword(e.target.value)}}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
               type={showPassword ? "text" : "password"}
               required
               className="mt-2 w-full rounded-lg border border-white/10 bg-[#171a1c] px-4 py-3 text-white outline-none focus:border-[#ff6a00]"
             />
-            {showPassword ? 
+            {showPassword ? (
               <Eye
                 className="absolute bottom-2 right-2"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setShowPassword(true)}
-                }
+                  // e.stopPropagation();
+                  console.log("click on")
+                  setShowPassword(false);
+                }}
               />
-            : 
+            ) : (
               <EyeOff
                 className="absolute bottom-2 right-2"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setShowPassword(false)}
-                }
+                  // e.stopPropagation();
+                  console.log("eyes off")
+                  setShowPassword(true);
+                }}
               />
-            }
+            )}
           </label>
           {error && <p className="text-sm text-red-400">{error}</p>}
           <button

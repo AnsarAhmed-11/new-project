@@ -91,7 +91,6 @@ export default function Navbar() {
               aria-current={isActive("/") ? "page" : undefined}
             >
               Home
-              <span />
             </Link>
 
             <Link

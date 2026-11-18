@@ -19,7 +19,7 @@ export default function FeaturedProducts() {
           <Link href="/products" className={styles.button}>View All Products <MoveRight size={17} aria-hidden="true" /></Link>
         </motion.div>
         <div className={styles.products}>
-          <CatalogProducts limit={4} />
+          <CatalogProducts limit={6} />
         </div>
       </div>
     </div>

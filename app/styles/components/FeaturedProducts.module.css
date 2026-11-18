@@ -25,7 +25,7 @@
 
 .layout {
     display: grid;
-    gap: 40px;
+    gap: 32px;
 }
 
 .eyebrow {
@@ -83,7 +83,9 @@
 .products {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px;
+    align-items: stretch;
+    gap: 20px;
+
 }
 
 @media (min-width: 640px) {
@@ -103,11 +105,12 @@
 
     .layout {
         grid-template-columns: 220px 1fr;
+        align-items: start;
     }
 }
 
 @media (min-width: 1280px) {
     .products {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }

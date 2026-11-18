@@ -66,7 +66,6 @@ async function readToken(token: string) {
 
 export async function authenticateAdmin(email: string, password: string) {
   const user = await findAdminByEmail(email.trim().toLowerCase());
-  console.log(user)
   if (!user || !(await bcrypt.compare(password, user.passwordHash)))
     return null;
   const sessionId = randomUUID();

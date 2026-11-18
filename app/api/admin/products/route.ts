@@ -1,94 +1,159 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+
 import { NextResponse } from "next/server";
 import { getAdmin } from "@/app/lib/auth";
-import { createProduct, getProducts } from "@/app/models/product.model.js";
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const allowedTypes = new Map([
-  ["image/jpeg", ".jpg"],
-  ["image/png", ".png"],
-  ["image/webp", ".webp"],
-]);
+import {
+  createProduct,
+  getProducts,
+} from "@/app/models/product.model.js";
+import {
+  deleteImageKitFile,
+  isValidProductImage,
+} from "@/app/lib/imagekitServer";
 
 function slugify(value: string) {
-  return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 export async function GET() {
-  if (!(await getAdmin()))
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!(await getAdmin())) {
+    return NextResponse.json(
+      { message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
   try {
-    return NextResponse.json({ data: await getProducts() });
-  } catch {
+    return NextResponse.json({
+      data: await getProducts(),
+    });
+  } catch (error) {
+    console.error("Get products error:", error);
+
     return NextResponse.json(
       { message: "Unable to load products." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
-//save image 
+
 export async function POST(request: Request) {
-  if (!(await getAdmin()))
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!(await getAdmin())) {
+    return NextResponse.json(
+      { message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  let imageKitFileId = "";
+
   try {
     const formData = await request.formData();
+
     const name = String(formData.get("name") || "").trim();
     const description = String(formData.get("description") || "").trim();
     const sourceUrl = String(formData.get("sourceUrl") || "").trim();
     const slug = slugify(String(formData.get("slug") || name));
     const sku = String(formData.get("sku") || "").trim();
-    const image = formData.get("image");
-    if (!name)
-      return NextResponse.json(
-        { message: "Product name is required." },
-        { status: 400 },
-      );
-    if (!(image instanceof File) || image.size === 0)
-      return NextResponse.json(
-        { message: "Product image is required." },
-        { status: 400 },
-      );
-    if (!allowedTypes.has(image.type))
-      return NextResponse.json(
-        { message: "Use a JPG, PNG, or WebP image." },
-        { status: 400 },
-      );
-    if (image.size > MAX_IMAGE_SIZE)
-      return NextResponse.json(
-        { message: "Image must be 5 MB or smaller." },
-        { status: 400 },
-      );
+    const status = String(formData.get("status") || "inStock");
 
-    const uploadDirectory = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "products",
-    );
-    await mkdir(uploadDirectory, { recursive: true });
-    const fileName = `${randomUUID()}${allowedTypes.get(image.type)}`;
-    await writeFile(
-      path.join(uploadDirectory, fileName),
-      Buffer.from(await image.arrayBuffer()),
-    );
+    const imageUrl = String(formData.get("imageUrl") || "").trim();
+    imageKitFileId = String(
+      formData.get("imageKitFileId") || ""
+    ).trim();
+    const imageKitFilePath = String(
+      formData.get("imageKitFilePath") || ""
+    ).trim();
+
+    // Validate product fields
+    if (
+      !name ||
+      name.length > 160 ||
+      !sku ||
+      sku.length > 80 ||
+      !slug ||
+      slug.length > 180
+    ) {
+      return NextResponse.json(
+        {
+          message:
+            "Name, slug, and SKU are required and must be within their limits.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!["inStock", "outOfStock"].includes(status)) {
+      return NextResponse.json(
+        { message: "Invalid product status." },
+        { status: 400 }
+      );
+    }
+
+    // Validate ImageKit metadata
+    if (
+      !isValidProductImage({
+        url: imageUrl,
+        fileId: imageKitFileId,
+        filePath: imageKitFilePath,
+      })
+    ) {
+      return NextResponse.json(
+        { message: "Invalid ImageKit image information." },
+        { status: 400 }
+      );
+    }
+
+    // Save product in database
     const id = await createProduct({
       name,
       description,
-      imageUrl: `/uploads/products/${fileName}`,
+      imageUrl,
+      imageKitFileId,
+      imageKitFilePath,
       sourceUrl,
       slug,
       sku,
+      status,
     });
+
     return NextResponse.json(
-      { id, message: "Product added successfully." },
-      { status: 201 },
+      {
+        id,
+        message: "Product added successfully.",
+      },
+      { status: 201 }
     );
-  } catch {
+  } catch (error: unknown) {
+    console.error("Create product error:", error);
+
+    const code = (error as { code?: string })?.code;
+
+    // Remove newly uploaded ImageKit file if DB save failed
+    if (imageKitFileId) {
+      try {
+        await deleteImageKitFile(imageKitFileId);
+      } catch (cleanupError) {
+        console.error(
+          "ImageKit cleanup failed:",
+          cleanupError
+        );
+      }
+    }
+
     return NextResponse.json(
-      { message: "Unable to save product." },
-      { status: 500 },
+      {
+        message:
+          code === "ER_DUP_ENTRY"
+            ? "Slug or SKU already exists."
+            : "Unable to save product.",
+      },
+      {
+        status: code === "ER_DUP_ENTRY" ? 409 : 500,
+      }
     );
   }
 }

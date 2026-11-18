@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 export default function EnquiryForm() {
   const [loading, setLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState("");
   const inputStyle =
     "w-full rounded-lg border border-white/10 bg-[#171a1c] px-4 py-3 text-white outline-none transition placeholder:text-gray-500 focus:border-[#ff6a00] focus:ring-1 focus:ring-[#ff6a00] disabled:cursor-not-allowed disabled:opacity-60";
 
@@ -17,21 +18,21 @@ export default function EnquiryForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (loading) return;
 
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    const productId = new URLSearchParams(window.location.search).get("productId") || null;
     const payload = {
       name: String(formData.get("name") || "").trim(),
       email: String(formData.get("email") || "").trim(),
       phone: String(formData.get("phone") || "").trim(),
       company: String(formData.get("company") || "").trim(),
-      product: selectedProduct.trim(),
+      productId,
+      product:selectedProduct,
       message: String(formData.get("message") || "").trim(),
     };
-
     // Client-side validation
     if (payload.name.length < 2 || payload.name.length > 100) {
       return toast.error("Name must be between 2 and 100 characters!");
@@ -56,8 +57,8 @@ export default function EnquiryForm() {
       "Custom Requirements",
       "Other",
     ];
-
-    if (!allowedProducts.includes(payload.product)) {
+    console.log("payload products",payload.product)
+    if (!productId && !allowedProducts.includes(payload.product)) {
       return toast.error("Please select a valid product!");
     }
 
@@ -79,12 +80,11 @@ export default function EnquiryForm() {
           error: (error) =>
             error.response?.data?.message || "Unable to submit enquiry!",
         },
-      );
+      )
+      console.log("Enquiry Response:", response);
 
-      console.log("Enquiry Response:", response.data);
-
-      form.reset();
-      setSelectedProduct("");
+      // form.reset();
+      // setSelectedProduct("");
     } catch (error) {
       console.error("Enquiry Error:", error);
     } finally {
@@ -237,7 +237,8 @@ export default function EnquiryForm() {
                 name="product"
                 className={inputStyle}
                 required
-                defaultValue=""
+                value={selectedProduct}
+                onChange={(e) => setSelectedProduct(e.target.value)}
                 disabled={loading}
               >
                 <option value="" disabled>
@@ -250,7 +251,6 @@ export default function EnquiryForm() {
                 <option value="Other">Other</option>
               </select>
             </div>
-          
 
             {/* Requirements */}
             <div>

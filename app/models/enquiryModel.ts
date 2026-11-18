@@ -12,6 +12,7 @@ export type EnquiryStatus = (typeof ENQUIRY_STATUSES)[number];
 
 export type Enquiry = {
   id: number;
+  productId: number | null;
   name: string;
   company: string | null;
   email: string;
@@ -28,7 +29,8 @@ type EnquiryRow = RowDataPacket & {
   company: string | null;
   email: string;
   phone: string;
-  product: string;
+  product_id: number | null;
+  product_name: string | null;
   message: string;
   status: EnquiryStatus;
   created_at: Date;
@@ -42,7 +44,8 @@ function map(row: EnquiryRow): Enquiry {
     company: row.company,
     email: row.email,
     phone: row.phone,
-    product: row.product,
+    productId: row.product_id,
+    product: row.product_name || "General enquiry",
     message: row.message,
     status: row.status,
     createdAt: row.created_at.toISOString(),
@@ -55,17 +58,17 @@ export async function createEnquiry(input: {
   company?: string;
   email: string;
   phone: string;
-  product: string;
+  productId?: number | null;
   message: string;
 }) {
   const [result] = await db.execute<ResultSetHeader>(
-    "INSERT INTO enquiries (name, company, email, phone, product, message) VALUES (?, ?, ?, ?, ?, ?)",
+    "INSERT INTO enquiries (product_id, name, company, email, phone, message) VALUES (?, ?, ?, ?, ?, ?)",
     [
+      input.productId || null,
       input.name,
       input.company || null,
       input.email,
       input.phone,
-      input.product,
       input.message,
     ],
   );
@@ -87,31 +90,41 @@ export async function listEnquiries(
   const params: (string | number)[] = [];
   const where: string[] = [];
   if (filters.search) {
-    where.push("(name LIKE ? OR email LIKE ? OR phone LIKE ?)");
+    where.push(
+      "(e.name LIKE ? OR e.email LIKE ? OR e.phone LIKE ? OR p.name LIKE ?)",
+    );
     const term = `%${filters.search}%`;
-    params.push(term, term, term);
+    params.push(term, term, term, term);
   }
   if (
     filters.status &&
     ENQUIRY_STATUSES.includes(filters.status as EnquiryStatus)
   ) {
-    where.push("status = ?");
+    where.push("e.status = ?");
     params.push(filters.status);
   }
-  if (filters.date && /^\\d{4}-\\d{2}-\\d{2}$/.test(filters.date)) {
-    where.push("DATE(created_at) = ?");
+  if (filters.date && /^\d{4}-\d{2}-\d{2}$/.test(filters.date)) {
+    where.push("DATE(e.created_at) = ?");
     params.push(filters.date);
   }
   const clause = where.length ? `WHERE ${where.join(" AND ")}` : "";
   const order = filters.sort === "oldest" ? "ASC" : "DESC";
   const offset = (page - 1) * limit;
+  const safeLimit = Math.min(Math.max(Number(limit) || 10, 1), 100);
+
+  const safeOffset = Math.max(Number(offset) || 0, 0);
   const [countRows] = await db.execute<(RowDataPacket & { total: number })[]>(
-    `SELECT COUNT(*) AS total FROM enquiries ${clause}`,
+    `SELECT COUNT(*) AS total FROM enquiries e LEFT JOIN products p ON p.id = e.product_id ${clause}`,
     params,
   );
   const [rows] = await db.execute<EnquiryRow[]>(
-    `SELECT * FROM enquiries ${clause} ORDER BY created_at ${order} LIMIT ? OFFSET ?`,
-    [...params, limit, offset],
+    `SELECT e.*, p.name AS product_name
+   FROM enquiries e
+   LEFT JOIN products p ON p.id = e.product_id
+   ${clause}
+   ORDER BY e.created_at ${order}
+   LIMIT ${safeLimit} OFFSET ${safeOffset}`,
+    params,
   );
   return {
     data: rows.map(map),
@@ -124,7 +137,7 @@ export async function listEnquiries(
 
 export async function getEnquiry(id: number) {
   const [rows] = await db.execute<EnquiryRow[]>(
-    "SELECT * FROM enquiries WHERE id = ? LIMIT 1",
+    "SELECT e.*, p.name AS product_name FROM enquiries e LEFT JOIN products p ON p.id = e.product_id WHERE e.id = ? LIMIT 1",
     [id],
   );
   return rows[0] ? map(rows[0]) : null;

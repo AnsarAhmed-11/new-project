@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/enquire/page.jsx", "app/lib/db.js"  ],
+, "app/enquire/page.jsx", "app/lib/db.ts", "app/components/ProductSkeleton.jsx"  ],
   "exclude": ["node_modules"]
 }

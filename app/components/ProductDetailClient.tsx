@@ -10,6 +10,7 @@ import type { ProductPrice } from "@/app/components/ProductCard";
 import styles from "../styles/components/ProductDetails.module.css";
 
 type Product = {
+  id: number;
   name: string;
   description?: string | null;
   imageUrl: string;
@@ -108,7 +109,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               </div>
               <div className={styles.actions}>
                 <Link
-                  href={`/enquire?product=${encodeURIComponent(product.name)}&size=${encodeURIComponent(product.prices[0]?.size || "")}`}
+                  href={`/enquire?productId=${product.id}&product=${encodeURIComponent(product.name)}&size=${encodeURIComponent(product.prices[0]?.size || "")}`}
                   className={styles.button}
                 >
                   Enquire about this product <ArrowUpRight size={17} />

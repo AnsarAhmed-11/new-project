@@ -1,0 +1,122 @@
+/* Skeleton grid */
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* Skeleton card */
+.skeletonCard {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Shimmer base */
+.skeletonImage,
+.skeletonTitle,
+.skeletonDescription,
+.skeletonDescriptionShort {
+  position: relative;
+  overflow: hidden;
+  background: #e9e9e9;
+  border-radius: 5px;
+}
+
+/* Moving shimmer */
+.skeletonImage::after,
+.skeletonTitle::after,
+.skeletonDescription::after,
+.skeletonDescriptionShort::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+/* Product image placeholder */
+.skeletonImage {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+}
+
+/* Product information */
+.skeletonInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.skeletonTitle {
+  width: 65%;
+  height: 16px;
+}
+
+.skeletonDescription {
+  width: 90%;
+  height: 12px;
+}
+
+.skeletonDescriptionShort {
+  width: 50%;
+  height: 12px;
+}
+
+/* Animation */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Screen-reader text */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive layout */
+@media (min-width: 640px) {
+  .skeletonGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .skeletonGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .skeletonGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .skeletonImage::after,
+  .skeletonTitle::after,
+  .skeletonDescription::after,
+  .skeletonDescriptionShort::after {
+    animation: none;
+  }
+}

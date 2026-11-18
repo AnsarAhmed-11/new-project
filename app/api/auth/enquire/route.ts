@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { createEnquiry } from "@/app/models/enquiryModel";
+import { getProductById } from "@/app/models/product.model.js";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, product, message, phone, company } = body;
+    const { name, email, productId, message, phone, company } = body;
 
     if (
       !name ||
       !email ||
-      !product ||
       !phone ||
       !message ||
       !/^\S+@\S+\.\S+$/.test(email)
@@ -20,16 +20,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const result=await createEnquiry({
+    const parsedProductId = productId == null || productId === "" ? null : Number(productId);
+    if (parsedProductId !== null && (!Number.isSafeInteger(parsedProductId) || !(await getProductById(parsedProductId)))) {
+      return NextResponse.json({ message: "The selected product could not be found." }, { status: 400 });
+    }
+    await createEnquiry({
       name: name.trim(),
       email: email.trim().toLowerCase(),
-      product: product.trim(),
+      productId: parsedProductId,
       phone: phone.trim(),
       message: message.trim(),
       company: company?.trim(),
     });
-    console.log(result);
-    
     return NextResponse.json(
       {
         message: "Enquiry submitted successfully!",
