@@ -1,6 +1,20 @@
 
 import db from "../lib/db";
 
+/** @typedef {{ size: string, price: number, currency?: string }} ProductPriceInput */
+/** @typedef {{
+ * name: string,
+ * description?: string | null,
+ * imageUrl: string,
+ * imageKitFileId?: string | null,
+ * imageKitFilePath?: string | null,
+ * sourceUrl?: string | null,
+ * slug: string,
+ * sku: string,
+ * status?: 'inStock' | 'outOfStock',
+ * prices?: ProductPriceInput[]
+ * }} CreateProductInput */
+
 const PRODUCT_FIELDS = `
   p.id,
   p.name,
@@ -33,10 +47,14 @@ const PRODUCT_FIELDS = `
 function parseProduct(row) {
   if (!row) return null;
 
-  const prices =
-    typeof row.prices === "string"
-      ? JSON.parse(row.prices)
-      : row.prices;
+  let prices = row.prices;
+  if (typeof prices === "string") {
+    try {
+      prices = JSON.parse(prices);
+    } catch {
+      prices = [];
+    }
+  }
 
   return {
     ...row,
@@ -60,6 +78,7 @@ async function selectProduct(connection, where, params) {
   return parseProduct(rows[0]);
 }
 
+/** @param {CreateProductInput} input */
 export async function createProduct({
   name,
   description,

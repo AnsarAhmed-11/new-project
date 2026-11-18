@@ -71,15 +71,27 @@ export async function uploadProductImage({
       }
     },
   });
+  const { url, fileId, filePath } = result;
 
-  if (!result.url || !result.fileId) {
+  if (
+    typeof url !== "string" ||
+    typeof fileId !== "string" ||
+    typeof filePath !== "string" ||
+    !url ||
+    !fileId ||
+    !filePath
+  ) {` `
     throw new Error("ImageKit did not return a valid image.");
   }
 
+  const name = typeof result.name === "string" && result.name
+    ? result.name
+    : fileName;
+
   return {
-    url: result.url,
-    fileId: result.fileId,
-    filePath: result.filePath,
-    name: result.name,
+    url,
+    fileId,
+    filePath,
+    name,
   };
 }

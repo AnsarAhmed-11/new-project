@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getAdmin } from "@/app/lib/auth";
-export const instant = false;
 export default async function SettingsPage() {
   if (!(await getAdmin())) redirect("/admin/login");
   return (

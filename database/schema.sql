@@ -57,6 +57,8 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(160) NOT NULL,
     description TEXT NULL,
     image_url VARCHAR(500) NOT NULL,
+    imagekit_file_id VARCHAR(255) NULL,
+    imagekit_file_path VARCHAR(500) NULL,
     source_url VARCHAR(500) NULL,
     slug VARCHAR(180) NOT NULL,
     sku VARCHAR(80) NOT NULL,

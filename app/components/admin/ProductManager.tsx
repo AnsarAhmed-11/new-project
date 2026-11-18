@@ -3,367 +3,45 @@
 import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/app/components/admin/Sidebar";
 import { toast } from "sonner";
-import {
-  uploadProductImage,
-  type ImageKitUploadResult,
-} from "@/app/lib/imagekitUpload";
-type Product = {
-  id: number;
-  name: string;
-  description: string | null;
-  imageUrl: string;
-  sourceUrl?: string | null;
-  slug: string;
-  sku: string;
-  status: "inStock" | "outOfStock";
-};
+import Sidebar from "@/app/components/admin/Sidebar";
+import { uploadProductImage, type ImageKitUploadResult } from "@/app/lib/imagekitUpload";
+
+type PriceRow = { id?: number; size: string; price: string; currency: "INR" };
+type Product = { id: number; name: string; description: string | null; imageUrl: string; sourceUrl?: string | null; slug: string; sku: string; status: "inStock" | "outOfStock"; prices?: Array<{ id?: number; size: string; price: number | string; currency?: string }> };
+const emptyRow = (): PriceRow => ({ size: "", price: "", currency: "INR" });
+const slugify = (value: string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
 export default function ProductManager() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [sku, setSku] = useState("");
-  const [status, setStatus] = useState("");
-  const [sourceUrl, setSourceUrl] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  async function loadProducts() {
-    try {
-      const response = await fetch("/api/admin/products");
-      if (!response.ok) {
-        setError("Unable to load products.");
-        return;
-      }
+  const [name, setName] = useState(""); const [slug, setSlug] = useState(""); const [slugEdited, setSlugEdited] = useState(false);
+  const [sku, setSku] = useState(""); const [status, setStatus] = useState<"inStock" | "outOfStock">("inStock");
+  const [sourceUrl, setSourceUrl] = useState(""); const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null); const [imagePreview, setImagePreview] = useState(""); const [prices, setPrices] = useState<PriceRow[]>([]);
+  const [error, setError] = useState(""); const [saving, setSaving] = useState(false); const [editingId, setEditingId] = useState<number | null>(null); const [uploadProgress, setUploadProgress] = useState(0);
 
-      const result = await response.json();
-      setProducts(Array.isArray(result.data) ? result.data : []);
-    } catch {
-      setError("Unable to load products.");
-    }
+  async function loadProducts() { try { const response = await fetch("/api/admin/products", { cache: "no-store" }); const result = await response.json(); if (!response.ok) throw new Error(result.message || "Unable to load products."); setProducts(Array.isArray(result.data) ? result.data : []); } catch (loadError) { setError(loadError instanceof Error ? loadError.message : "Unable to load products."); } }
+  useEffect(() => { void loadProducts(); }, []);
+  useEffect(() => { if (!image) return; const url = URL.createObjectURL(image); setImagePreview(url); return () => URL.revokeObjectURL(url); }, [image]);
+  function resetForm() { setName(""); setSlug(""); setSlugEdited(false); setSku(""); setStatus("inStock"); setSourceUrl(""); setDescription(""); setImage(null); setImagePreview(""); setPrices([]); setEditingId(null); setUploadProgress(0); }
+  function updatePrice(index: number, field: "size" | "price", value: string) { setPrices((rows) => rows.map((row, i) => i === index ? { ...row, [field]: value } : row)); }
+  function validatePrices() { const seen = new Set<string>(); for (const row of prices) { const size = row.size.trim(); const price = Number(row.price); if (!size) return "Every price row needs a size."; if (!Number.isFinite(price) || price <= 0) return `Enter a positive price for ${size}.`; const key = size.toLocaleLowerCase(); if (seen.has(key)) return `The size ${size} is duplicated.`; seen.add(key); } return null; }
+  function selectImage(file: File | null) { if (!file) return; if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return void toast.error("Use a JPG, PNG, or WebP image."); if (file.size > 10 * 1024 * 1024) return void toast.error("Image size must be less than 10 MB."); setImage(file); }
+
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!name.trim() || !slug.trim() || !sku.trim()) return void toast.error("Name, slug, and SKU are required."); if (name.trim().length > 160 || slug.trim().length > 180 || sku.trim().length > 80) return void toast.error("Name, slug, or SKU is too long."); const priceError = validatePrices(); if (priceError) return void toast.error(priceError); if (!image && !editingId) return void toast.error("Product image is required."); setSaving(true); setError(""); setUploadProgress(0);
+    try { let uploadedImage: ImageKitUploadResult | null = null; if (image) uploadedImage = await uploadProductImage({ file: image, onProgress: setUploadProgress }); const formData = new FormData(); formData.append("name", name.trim()); formData.append("slug", slug.trim()); formData.append("sku", sku.trim()); formData.append("description", description.trim()); formData.append("sourceUrl", sourceUrl.trim()); formData.append("status", status); formData.append("prices", JSON.stringify(prices.map((row) => ({ size: row.size.trim(), price: Number(row.price), currency: "INR" })))); if (uploadedImage) { formData.append("imageUrl", uploadedImage.url); formData.append("imageKitFileId", uploadedImage.fileId); formData.append("imageKitFilePath", uploadedImage.filePath); } const response = await fetch(editingId ? `/api/admin/products/${editingId}` : "/api/admin/products", { method: editingId ? "PUT" : "POST", body: formData }); const result = await response.json(); if (!response.ok) throw new Error(result.message || "Unable to save product."); toast.success(result.message || "Product saved successfully."); resetForm(); await loadProducts(); } catch (saveError) { const message = saveError instanceof Error ? saveError.message : "Unable to save product."; setError(message); toast.error(message); } finally { setSaving(false); }
   }
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      void loadProducts();
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!name.trim()) {
-      return toast.error("Product name is required");
-    }
-
-    if (!slug.trim()) {
-      return toast.error("Product slug is required");
-    }
-
-    if (!description.trim()) {
-      return toast.error("Product description is required");
-    }
-
-    if (!sku.trim()) {
-      return toast.error("Product SKU is required");
-    }
-
-    if (!["inStock", "outOfStock"].includes(status)) {
-      return toast.error("Please select a valid product status");
-    }
-
-    if (!image && !editingId) {
-      return toast.error("Product image is required");
-    }
-
-    setSaving(true);
-    setError("");
-    setMessage("");
-    setUploadProgress(0);
-
-    try {
-      let uploadedImage: ImageKitUploadResult | null = null;
-
-      // Upload selected file directly to ImageKit
-      if (image) {
-        uploadedImage = await uploadProductImage({
-          file: image,
-          onProgress: (progress) => {
-            setUploadProgress(progress);
-          },
-        });
-      }
-
-      const formData = new FormData();
-
-      formData.append("name", name.trim());
-      formData.append("slug", slug.trim());
-      formData.append("sku", sku.trim());
-      formData.append("description", description.trim());
-      formData.append("sourceUrl", sourceUrl.trim());
-      formData.append("status", status);
-
-      // Send ImageKit information to your backend
-      if (uploadedImage) {
-        formData.append("imageUrl", uploadedImage.url);
-        formData.append("imageKitFileId", uploadedImage.fileId);
-        formData.append("imageKitFilePath", uploadedImage.filePath);
-      }
-
-      const response = await fetch(
-        editingId ? `/api/admin/products/${editingId}` : "/api/admin/products",
-        {
-          method: editingId ? "PUT" : "POST",
-          body: formData,
-        },
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Unable to save product.");
-      }
-
-      toast.success(result.message || "Product saved successfully.");
-
-      setName("");
-      setDescription("");
-      setSlug("");
-      setSku("");
-      setSourceUrl("");
-      setImage(null);
-      setStatus("");
-      setEditingId(null);
-      setUploadProgress(0);
-
-      event.currentTarget.reset();
-
-      await loadProducts();
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unable to save product.";
-
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function edit(product: Product) {
-    setEditingId(product.id);
-    setName(product.name);
-    setSlug(product.slug);
-    setSku(product.sku);
-    setDescription(product.description || "");
-    setSourceUrl(product.sourceUrl || "");
-    setStatus(product.status);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-  async function remove(product: Product) {
-    if (
-      !window.confirm(
-        `Delete ${product.name}? This also removes its saved prices.`,
-      )
-    )
-      return;
-    const response = await fetch(`/api/admin/products/${product.id}`, {
-      method: "DELETE",
-    });
-    const result = await response.json();
-    if (!response.ok)
-      return toast.error(result.message || "Unable to delete product.");
-    toast.success(result.message || "Product deleted.");
-    await loadProducts();
-  }
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
-  }
-
-  return (
-    <div className="min-h-screen bg-[#080a0b] text-white lg:flex">
-      <Sidebar onLogout={logout} />
-      <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-9">
-        <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[3px] text-[#ff6a00]">
-            Catalog
-          </p>
-          <h1 className="mt-2 text-3xl font-bold">Products</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Add products and upload their images.
-          </p>
-        </div>
-        <section className="max-w-2xl rounded-xl border border-white/10 bg-[#101315] p-5 sm:p-6">
-          <h2 className="text-lg font-semibold">
-            {editingId ? "Edit Product" : "Add New Product"}
-          </h2>
-          <form onSubmit={submit} className="mt-5 grid gap-4" noValidate>
-            {/* Product name */}
-            <label className="grid gap-2 text-sm text-gray-300">
-              Product name
-              <input
-                required={!editingId}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
-                placeholder="Enter product name"
-              />
-            </label>
-            <label className="grid gap-2 text-sm text-gray-300">
-              Product slug
-              <input
-                required
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
-                placeholder="e.g. hydraulic-pipe-cutter"
-              />
-            </label>
-            <label className="grid gap-2 text-sm text-gray-300">
-              Product Sku / Code
-              <input
-                required
-                value={sku}
-                onChange={(e) => setSku(e.target.value)}
-                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
-                placeholder="e.g. MTL-HP-001"
-              />
-            </label>
-            {/* Product Description */}
-            <label className="grid gap-2 text-sm text-gray-300">
-              Description
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
-                placeholder="Enter detailed product description"
-              />
-            </label>
-            <label className="grid gap-2 text-sm text-gray-300">
-              Image source URL{" "}
-              <span className="text-xs text-gray-500">
-                Optional reference/source URL. Product images are uploaded to
-                ImageKit.
-              </span>
-              <input
-                value={sourceUrl}
-                onChange={(e) => setSourceUrl(e.target.value)}
-                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
-                placeholder="https://…"
-                type="url"
-              />
-            </label>
-            <label className="grid gap-2 text-sm text-gray-300">
-              Status
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]"
-              >
-                <option value="" disabled>
-                  Select Status
-                </option>
-                <option value="inStock">In Stock</option>
-                <option value="outOfStock">Out of Stock</option>
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm text-gray-300">
-              Product image
-              <input
-                required
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => setImage(e.target.files?.[0] || null)}
-                className="rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-sm text-gray-300 file:mr-3 file:rounded file:border-0 file:bg-[#ff6a00] file:px-3 file:py-1.5 file:font-semibold file:text-black"
-              />
-              {saving && image && (
-                <div className="mt-2">
-                  <div className="mb-1 flex justify-between text-xs text-gray-400">
-                    <span>Uploading to ImageKit...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-
-                  <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                    <div
-                      className="h-full rounded-full bg-[#ff6a00] transition-all"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-              <span className="text-xs text-gray-500">
-                JPG, PNG, or WebP · max 5 MB
-              </span>
-            </label>
-            {message && <p className="text-sm text-green-400">{message}</p>}
-            {error && <p className="text-sm text-red-400">{error}</p>}
-            <button
-              disabled={saving}
-              className="w-fit rounded-lg bg-[#ff6a00] px-5 py-2.5 font-semibold text-black disabled:opacity-50"
-            >
-              {saving
-                ? image && uploadProgress < 100
-                  ? `Uploading ${uploadProgress}%...`
-                  : "Saving product..."
-                : editingId
-                  ? "Save changes"
-                  : "Add product"}
-            </button>
-          </form>
-        </section>
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {products.map((product) => (
-            <article
-              key={product.id}
-              className="overflow-hidden rounded-xl border border-white/10 bg-[#101315]"
-            >
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                width={640}
-                height={384}
-                className="h-48 w-full object-cover"
-              />
-              <div className="p-4">
-                <h2 className="font-semibold">{product.name}</h2>
-                <p className="mt-1 text-xs text-gray-500">
-                  {product.sku} ·{" "}
-                  {product.status === "inStock" ? "In stock" : "Out of stock"}
-                </p>
-                {product.description && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    {product.description}
-                  </p>
-                )}
-                <div className="mt-4 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => edit(product)}
-                    className="rounded-md border border-white/10 px-3 py-1.5 text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => remove(product)}
-                    className="rounded-md border border-red-500/30 px-3 py-1.5 text-sm text-red-300"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </section>
-      </main>
-    </div>
-  );
+  function edit(product: Product) { setEditingId(product.id); setName(product.name); setSlug(product.slug); setSlugEdited(true); setSku(product.sku); setDescription(product.description || ""); setSourceUrl(product.sourceUrl || ""); setStatus(product.status); setImage(null); setImagePreview(product.imageUrl); setPrices((product.prices || []).map((row) => ({ id: row.id, size: row.size, price: String(row.price), currency: "INR" }))); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  async function remove(product: Product) { if (!window.confirm(`Delete ${product.name}? This also removes its saved prices.`)) return; const response = await fetch(`/api/admin/products/${product.id}`, { method: "DELETE" }); const result = await response.json(); if (!response.ok) return void toast.error(result.message || "Unable to delete product."); toast.success(result.message || "Product deleted."); await loadProducts(); }
+  async function logout() { await fetch("/api/admin/logout", { method: "POST" }); router.push("/admin/login"); }
+  const inputClass = "rounded-lg border border-white/10 bg-[#171a1c] px-3 py-2.5 text-white outline-none focus:border-[#ff6a00]";
+  return <div className="min-h-screen bg-[#080a0b] text-white lg:flex"><Sidebar onLogout={logout} /><main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-9"><div className="mb-8"><p className="text-sm font-semibold uppercase tracking-[3px] text-[#ff6a00]">Catalog</p><h1 className="mt-2 text-3xl font-bold">Products</h1><p className="mt-1 text-sm text-gray-500">Manage product details, ImageKit images, and optional size pricing.</p></div>
+    <section className="max-w-3xl rounded-xl border border-white/10 bg-[#101315] p-5 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold">{editingId ? "Edit Product" : "Add New Product"}</h2>{editingId && <button type="button" onClick={resetForm} className="text-sm text-gray-400 hover:text-white">Cancel edit</button>}</div><form onSubmit={submit} className="mt-5 grid gap-4" noValidate>
+      <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm text-gray-300">Product name<input value={name} onChange={(e) => { setName(e.target.value); if (!slugEdited) setSlug(slugify(e.target.value)); }} className={inputClass} placeholder="Enter product name" /></label><label className="grid gap-2 text-sm text-gray-300">Product slug<input value={slug} onChange={(e) => { setSlug(e.target.value); setSlugEdited(true); }} className={inputClass} placeholder="hydraulic-pipe-cutter" /></label><label className="grid gap-2 text-sm text-gray-300">SKU / Product code<input value={sku} onChange={(e) => setSku(e.target.value)} className={inputClass} placeholder="MTL-HP-001" /></label><label className="grid gap-2 text-sm text-gray-300">Status<select value={status} onChange={(e) => setStatus(e.target.value as "inStock" | "outOfStock")} className={inputClass}><option value="inStock">In Stock</option><option value="outOfStock">Out of Stock</option></select></label></div>
+      <label className="grid gap-2 text-sm text-gray-300">Description<textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className={inputClass} placeholder="Enter product description" /></label><label className="grid gap-2 text-sm text-gray-300">Source URL <span className="text-xs text-gray-500">Optional reference URL</span><input type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} className={inputClass} placeholder="https://..." /></label>
+      <label className="grid gap-2 text-sm text-gray-300">Product image<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => selectImage(e.target.files?.[0] || null)} className={`${inputClass} text-sm file:mr-3 file:rounded file:border-0 file:bg-[#ff6a00] file:px-3 file:py-1.5 file:font-semibold file:text-black`} />{imagePreview && <Image src={imagePreview} alt="Product preview" width={320} height={180} className="h-40 w-full rounded-lg object-cover sm:w-64" />}{saving && image && <div><div className="mb-1 flex justify-between text-xs text-gray-400"><span>Uploading to ImageKit...</span><span>{uploadProgress}%</span></div><div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-[#ff6a00] transition-all" style={{ width: `${uploadProgress}%` }} /></div></div>}<span className="text-xs text-gray-500">JPG, PNG, or WebP · max 10 MB. Existing images are preserved when editing without a replacement.</span></label>
+      <div className="rounded-lg border border-white/10 p-4"><div className="mb-3 flex items-center justify-between"><div><h3 className="font-medium">Sizes and prices</h3><p className="text-xs text-gray-500">Optional · currency is INR</p></div><button type="button" onClick={() => setPrices((rows) => [...rows, emptyRow()])} className="rounded-md border border-[#ff6a00]/50 px-3 py-1.5 text-sm text-[#ff9b5b]">Add size / price</button></div>{prices.length === 0 && <p className="text-sm text-gray-500">No variants added. You can save this product without size pricing.</p>}<div className="grid gap-2">{prices.map((row, index) => <div key={row.id ?? index} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]"><input aria-label={`Size ${index + 1}`} value={row.size} onChange={(e) => updatePrice(index, "size", e.target.value)} className={inputClass} placeholder="Size e.g. Small" /><input aria-label={`Price ${index + 1}`} type="number" min="0.01" step="0.01" value={row.price} onChange={(e) => updatePrice(index, "price", e.target.value)} className={inputClass} placeholder="Price in INR" /><button type="button" onClick={() => setPrices((rows) => rows.filter((_, rowIndex) => rowIndex !== index))} className="rounded-md border border-red-500/30 px-3 py-2 text-sm text-red-300">Remove</button></div>)}</div></div>
+      {error && <p className="text-sm text-red-400">{error}</p>}<button disabled={saving} className="w-fit rounded-lg bg-[#ff6a00] px-5 py-2.5 font-semibold text-black disabled:opacity-50">{saving ? image && uploadProgress < 100 ? `Uploading ${uploadProgress}%...` : "Saving product..." : editingId ? "Save changes" : "Add product"}</button>
+    </form></section><section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{products.map((product) => <article key={product.id} className="overflow-hidden rounded-xl border border-white/10 bg-[#101315]"><Image src={product.imageUrl || "/solid-center.jpg"} alt={product.name} width={640} height={384} className="h-48 w-full object-cover" /><div className="p-4"><h2 className="font-semibold">{product.name}</h2><p className="mt-1 text-xs text-gray-500">{product.sku} · {product.status === "inStock" ? "In stock" : "Out of stock"}</p>{product.prices?.length ? <p className="mt-2 text-xs text-gray-400">{product.prices.length} size price{product.prices.length === 1 ? "" : "s"}</p> : null}<div className="mt-4 flex gap-2"><button type="button" onClick={() => edit(product)} className="rounded-md border border-white/10 px-3 py-1.5 text-sm">Edit</button><button type="button" onClick={() => remove(product)} className="rounded-md border border-red-500/30 px-3 py-1.5 text-sm text-red-300">Delete</button></div></div></article>)}</section></main></div>;
 }

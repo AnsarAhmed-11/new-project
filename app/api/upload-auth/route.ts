@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { getUploadAuthParams } from "@imagekit/next/server";
 import { requireAdmin } from "@/app/lib/auth";
 
+// This endpoint reads the request cookie and must never be prerendered.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     // Only authenticated admins can upload

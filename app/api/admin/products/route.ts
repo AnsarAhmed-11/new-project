@@ -1,10 +1,6 @@
-
 import { NextResponse } from "next/server";
 import { getAdmin } from "@/app/lib/auth";
-import {
-  createProduct,
-  getProducts,
-} from "@/app/models/product.model.js";
+import { createProduct, getProducts } from "@/app/models/product.model.js";
 import {
   deleteImageKitFile,
   isValidProductImage,
@@ -18,12 +14,43 @@ function slugify(value: string) {
     .replace(/^-|-$/g, "");
 }
 
+type ProductPriceInput = { size: string; price: number; currency: "INR" };
+class ProductValidationError extends Error {}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function parsePrices(value: FormDataEntryValue | null): ProductPriceInput[] {
+  if (value === null) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(String(value));
+    if (!Array.isArray(parsed)) throw new Error("Prices must be an array.");
+
+    const seen = new Set<string>();
+    return parsed.map((entry): ProductPriceInput => {
+      if (!isRecord(entry)) {
+        throw new Error("Invalid price row.");
+      }
+      const size = typeof entry.size === "string" ? entry.size.trim() : "";
+      const price = Number(entry.price);
+      const key = size.toLocaleLowerCase();
+      if (!size || size.length > 80 || !Number.isFinite(price) || price <= 0) {
+        throw new Error("Each size must have a positive price.");
+      }
+      if (seen.has(key)) throw new Error("Product sizes must be unique.");
+      seen.add(key);
+      return { size, price, currency: "INR" };
+    });
+  } catch (error) {
+    throw new ProductValidationError(error instanceof Error ? error.message : "Invalid prices.");
+  }
+}
+
 export async function GET() {
   if (!(await getAdmin())) {
-    return NextResponse.json(
-      { message: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -35,17 +62,14 @@ export async function GET() {
 
     return NextResponse.json(
       { message: "Unable to load products." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(request: Request) {
   if (!(await getAdmin())) {
-    return NextResponse.json(
-      { message: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   let imageKitFileId = "";
@@ -59,13 +83,12 @@ export async function POST(request: Request) {
     const slug = slugify(String(formData.get("slug") || name));
     const sku = String(formData.get("sku") || "").trim();
     const status = String(formData.get("status") || "inStock");
+    const prices = parsePrices(formData.get("prices"));
 
     const imageUrl = String(formData.get("imageUrl") || "").trim();
-    imageKitFileId = String(
-      formData.get("imageKitFileId") || ""
-    ).trim();
+    const submittedFileId = String(formData.get("imageKitFileId") || "").trim();
     const imageKitFilePath = String(
-      formData.get("imageKitFilePath") || ""
+      formData.get("imageKitFilePath") || "",
     ).trim();
 
     // Validate product fields
@@ -82,42 +105,54 @@ export async function POST(request: Request) {
           message:
             "Name, slug, and SKU are required and must be within their limits.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (!["inStock", "outOfStock"].includes(status)) {
+    if (status !== "inStock" && status !== "outOfStock") {
       return NextResponse.json(
         { message: "Invalid product status." },
-        { status: 400 }
+        { status: 400 },
       );
+    }
+
+    if (sourceUrl) {
+      try {
+        const parsedSourceUrl = new URL(sourceUrl);
+        if (!["http:", "https:"].includes(parsedSourceUrl.protocol)) throw new Error();
+      } catch {
+        return NextResponse.json({ message: "Source URL must be a valid HTTP or HTTPS URL." }, { status: 400 });
+      }
     }
 
     // Validate ImageKit metadata
     if (
       !isValidProductImage({
         url: imageUrl,
-        fileId: imageKitFileId,
+        fileId: submittedFileId,
         filePath: imageKitFilePath,
       })
     ) {
       return NextResponse.json(
         { message: "Invalid ImageKit image information." },
-        { status: 400 }
+        { status: 400 },
       );
     }
+
+    imageKitFileId = submittedFileId;
 
     // Save product in database
     const id = await createProduct({
       name,
       description,
       imageUrl,
-      imageKitFileId,
-      imageKitFilePath,
+      imageKitFileId: imageKitFileId || null,
+      imageKitFilePath: imageKitFilePath || null,
       sourceUrl,
       slug,
       sku,
       status,
+      prices,
     });
 
     return NextResponse.json(
@@ -125,35 +160,34 @@ export async function POST(request: Request) {
         id,
         message: "Product added successfully.",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error: unknown) {
     console.error("Create product error:", error);
 
-    const code = (error as { code?: string })?.code;
+    const code = isRecord(error) && typeof error.code === "string" ? error.code : undefined;
 
     // Remove newly uploaded ImageKit file if DB save failed
     if (imageKitFileId) {
       try {
         await deleteImageKitFile(imageKitFileId);
       } catch (cleanupError) {
-        console.error(
-          "ImageKit cleanup failed:",
-          cleanupError
-        );
+        console.error("ImageKit cleanup failed:", cleanupError);
       }
     }
 
     return NextResponse.json(
       {
         message:
-          code === "ER_DUP_ENTRY"
+          error instanceof ProductValidationError
+            ? error.message
+            : code === "ER_DUP_ENTRY"
             ? "Slug or SKU already exists."
             : "Unable to save product.",
       },
       {
-        status: code === "ER_DUP_ENTRY" ? 409 : 500,
-      }
+        status: error instanceof ProductValidationError ? 400 : code === "ER_DUP_ENTRY" ? 409 : 500,
+      },
     );
   }
 }

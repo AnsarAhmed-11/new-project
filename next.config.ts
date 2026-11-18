@@ -19,8 +19,6 @@ const nextConfig: NextConfig = {
     agentFeedback: true,
   },
 
-  cacheComponents: true,
-  partialPrefetching: true,
 };
 
 export default nextConfig;

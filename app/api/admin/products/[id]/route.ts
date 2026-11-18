@@ -15,10 +15,6 @@
     params: Promise<{ id: string }>;
   };
 
-  type DbError = {
-    code?: string;
-  };
-
   async function idOf(context: Context) {
     const id = Number((await context.params).id);
 
@@ -34,30 +30,28 @@
   }
 
   function parsePrices(value: FormDataEntryValue | null) {
-    try {
-      const parsed: unknown = JSON.parse(String(value || "[]"));
+    if (value === null) return [];
+    const parsed: unknown = JSON.parse(String(value));
+    if (!Array.isArray(parsed)) throw new Error("Prices must be an array.");
+    const seen = new Set<string>();
+    return parsed.map((entry) => {
+      if (!isRecord(entry)) {
+        throw new Error("Invalid price row.");
+      }
+      const size = typeof entry.size === "string" ? entry.size.trim() : "";
+      const price = Number(entry.price);
+      const key = size.toLocaleLowerCase();
+      if (!size || size.length > 80 || !Number.isFinite(price) || price <= 0) {
+        throw new Error("Each size must have a positive price.");
+      }
+      if (seen.has(key)) throw new Error("Product sizes must be unique.");
+      seen.add(key);
+      return { size, price, currency: "INR" };
+    });
+  }
 
-      return Array.isArray(parsed)
-        ? parsed.filter(
-            (
-              p,
-            ): p is {
-              size: string;
-              price: number;
-              currency?: string;
-            } =>
-              typeof p === "object" &&
-              p !== null &&
-              "size" in p &&
-              Boolean(p.size) &&
-              "price" in p &&
-              Number.isFinite(Number(p.price)) &&
-              Number(p.price) >= 0,
-          )
-        : [];
-    } catch {
-      return [];
-    }
+  function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
   }
 
   export async function GET(_request: Request, context: Context) {
@@ -137,7 +131,8 @@
         slug.length > 180 ||
         !sku ||
         sku.length > 80 ||
-        !["inStock", "outOfStock"].includes(status)
+        status !== "inStock" &&
+        status !== "outOfStock"
       ) {
         return NextResponse.json(
           { message: "Valid name, slug, SKU, and status are required." },
@@ -172,8 +167,31 @@
         );
       }
 
+      let prices;
+      try {
+        prices = parsePrices(formData.get("prices"));
+      } catch (error) {
+        return NextResponse.json(
+          { message: error instanceof Error ? error.message : "Invalid prices." },
+          { status: 400 },
+        );
+      }
+
       if (hasImageData) {
         newFileId = imageKitFileId;
+      }
+
+      const sourceUrl = String(formData.get("sourceUrl") || "").trim();
+      if (sourceUrl) {
+        try {
+          const parsedSourceUrl = new URL(sourceUrl);
+          if (!["http:", "https:"].includes(parsedSourceUrl.protocol)) throw new Error();
+        } catch {
+          return NextResponse.json(
+            { message: "Source URL must be a valid HTTP or HTTPS URL." },
+            { status: 400 },
+          );
+        }
       }
 
       const updated = await updateProduct(id, {
@@ -184,13 +202,11 @@
         description: String(
           formData.get("description") || "",
         ).trim(),
-        sourceUrl: String(
-          formData.get("sourceUrl") || "",
-        ).trim(),
+        sourceUrl,
         imageUrl: hasImageData ? imageUrl : undefined,
         imageKitFileId: hasImageData ? imageKitFileId : undefined,
         imageKitFilePath: hasImageData ? imageKitFilePath : undefined,
-        prices: parsePrices(formData.get("prices")),
+        prices,
       });
 
       if (!updated) {
@@ -234,7 +250,7 @@
         }
       }
 
-      const code = (error as DbError)?.code;
+      const code = isRecord(error) && typeof error.code === "string" ? error.code : undefined;
 
       return NextResponse.json(
         {
