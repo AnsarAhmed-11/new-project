@@ -63,7 +63,7 @@ export function isValidProductImage({
 
   try {
     const parsedUrl = new URL(url);
-    const endpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
+    const endpoint = process.env.IMAGEKIT_URL_ENDPOINT;
 
     if (!endpoint || parsedUrl.protocol !== "https:") {
       return false;

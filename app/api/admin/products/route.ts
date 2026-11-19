@@ -44,7 +44,9 @@ function parsePrices(value: FormDataEntryValue | null): ProductPriceInput[] {
       return { size, price, currency: "INR" };
     });
   } catch (error) {
-    throw new ProductValidationError(error instanceof Error ? error.message : "Invalid prices.");
+    throw new ProductValidationError(
+      error instanceof Error ? error.message : "Invalid prices.",
+    );
   }
 }
 
@@ -90,7 +92,12 @@ export async function POST(request: Request) {
     const imageKitFilePath = String(
       formData.get("imageKitFilePath") || "",
     ).trim();
-
+    console.log("IMAGE VALIDATION INPUT:", {
+      imageUrl,
+      imageKitFileIdExists: Boolean(imageKitFileId),
+      imageKitFilePath,
+      configuredEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+    });
     // Validate product fields
     if (
       !name ||
@@ -119,9 +126,13 @@ export async function POST(request: Request) {
     if (sourceUrl) {
       try {
         const parsedSourceUrl = new URL(sourceUrl);
-        if (!["http:", "https:"].includes(parsedSourceUrl.protocol)) throw new Error();
+        if (!["http:", "https:"].includes(parsedSourceUrl.protocol))
+          throw new Error();
       } catch {
-        return NextResponse.json({ message: "Source URL must be a valid HTTP or HTTPS URL." }, { status: 400 });
+        return NextResponse.json(
+          { message: "Source URL must be a valid HTTP or HTTPS URL." },
+          { status: 400 },
+        );
       }
     }
 
@@ -165,7 +176,10 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     console.error("Create product error:", error);
 
-    const code = isRecord(error) && typeof error.code === "string" ? error.code : undefined;
+    const code =
+      isRecord(error) && typeof error.code === "string"
+        ? error.code
+        : undefined;
 
     // Remove newly uploaded ImageKit file if DB save failed
     if (imageKitFileId) {
@@ -182,11 +196,16 @@ export async function POST(request: Request) {
           error instanceof ProductValidationError
             ? error.message
             : code === "ER_DUP_ENTRY"
-            ? "Slug or SKU already exists."
-            : "Unable to save product.",
+              ? "Slug or SKU already exists."
+              : "Unable to save product.",
       },
       {
-        status: error instanceof ProductValidationError ? 400 : code === "ER_DUP_ENTRY" ? 409 : 500,
+        status:
+          error instanceof ProductValidationError
+            ? 400
+            : code === "ER_DUP_ENTRY"
+              ? 409
+              : 500,
       },
     );
   }
